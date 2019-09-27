@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Hugo 0.58.3" />
+  
+  
+  
+  <title>
+    
+    Setting up a static web page in 2019 | Martin Dickson
+    
+  </title>
+  <link rel="canonical" href="https://mjdickson.dev/posts/setting-up-a-static-webpage-in-2019/">
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://mjdickson.dev/css/base.min.1a54fb9deb4432a6bdbfaae514a30a7d9b401dbdb840a36b206dfd5d3ee60557.css" integrity="sha256-GlT7netEMqa9v6rlFKMKfZtAHb24QKNrIG39XT7mBVc=" crossorigin="anonymous">
+  
+  
+</head>
+<body>
+  <nav class="u-background">
+  <div class="u-wrapper">
+    <ul class="Banner">
+      <li class="Banner-item Banner-item--title">
+        <a class="Banner-link u-clickable" href="https://mjdickson.dev/">Martin Dickson</a>
+      </li>
+      
+      <li class="Banner-item">
+        <a class="Banner-link u-clickable" href="https://mjdickson.dev/posts/">Posts</a>
+      </li>
+      
+      <li class="Banner-item">
+        <a class="Banner-link u-clickable" href="https://mjdickson.dev/research/">Research</a>
+      </li>
+      
+      <li class="Banner-item">
+        <a class="Banner-link u-clickable" href="https://mjdickson.dev/about/">About</a>
+      </li>
+      
+    </ul>
+  </div>
+</nav>
+
+  <main>
+    <div class="u-wrapper">
+      <div class="u-padding">
+        
+
+<article>
+  <header class="Heading">
+  <h2 class="Heading-title">
+    <a class="Heading-link u-clickable" href="https://mjdickson.dev/posts/setting-up-a-static-webpage-in-2019/" rel="bookmark">Setting up a static web page in 2019</a>
+  </h2>
+  
+  <time datetime="2019-09-23T07:26:00&#43;01:00">
+    23 September, 2019
+  </time>
+  
+</header>
+
+  <p>I was recently setting up a website for a small <a href="https://funtastictravels.business">travel blog</a>.  We wanted a reasonable looking static site, content supplied via markdown files, hosted on a custom domain and supporting TLS.  I&rsquo;m not sure what the quickest way to do this is in 2019, but it probably involves Netlify.  I went down a Hugo / Google Domains / App Engine route, and it was still pretty slick.</p>
+
+<p>First the static site generator.  There are <em>so many</em> static site generators out there, but I&rsquo;d never found one I liked.  In fact I wrote my own one in bash for the site you&rsquo;re currently reading:</p>
+
+<pre><code>rm -rf www 
+mkdir -p www/posts
+
+# generate all the post pages
+pushd content/posts
+for filename in *.html; do
+	cat ../../includes/meta.html ../../includes/header.html &quot;$filename&quot; ../../includes/footer.html &gt; ../../www/posts/&quot;$filename&quot;
+done
+
+# generate the body of the post aggregation page
+rm ../posts.html
+echo '&lt;div class=&quot;container home&quot;&gt;' &gt;&gt; ../posts.html
+posts=`ls . | sort -r`
+for filename in $posts; do
+	lastline=`cat $filename | grep -n '&lt;/p&gt;' | cut -d':' -f1 | head -n 1`
+	snippet=`cat $filename | tail -n +2 | head -n $(($lastline-1))`
+	echo &quot;$snippet&quot; &gt;&gt; ../posts.html
+	echo &quot;&lt;a href=&quot;/posts/$filename&quot;&gt;(read more)&lt;/a&gt;&quot; &gt;&gt; ../posts.html
+done
+echo '&lt;/div&gt;' &gt;&gt; ../posts.html
+popd
+
+# generate top level pages
+pushd content
+for filename in \*.html; do
+	basefilename=${filename::-5}
+	mkdir -p ../www/$basefilename
+	cat ../includes/meta.html ../includes/header.html &quot;$filename&quot; ../includes/footer.html &gt; ../www/&quot;$basefilename&quot;/index.html
+done
+popd
+
+mkdir -p www/css
+cp css/style.css www/css/style.css
+</code></pre>
+
+<p>The less said about this the better.</p>
+
+<p>This time, I tried <a href="https://gohugo.io/">Hugo</a> again, and it was easier to get something I liked the look of than I remember.  I followed the <a href="https://gohugo.io/getting-started/quick-start/">quickstart</a> and found a sufficiently frivolous <a href="https://themes.gohugo.io/theme/papercss-hugo-theme/">theme</a>, and had something which looked like what I wanted running on localhost within 5 minutes.</p>
+
+<p>I got sidetracked at this point by the <code>hugo deploy</code> <a href="https://gohugo.io/hosting-and-deployment/hugo-deploy/">command</a> which I could use to push my static site to a GCS bucket.  I found two issues (probably both surmountable) with a purely bucket-based site though:
+  * Visiting <code>http://mysite.com</code> should show you the HTML in <code>http://mysite.com/index.html</code>, but this behaviour didn&rsquo;t come for free from the bucket and I wasn&rsquo;t sure how to configure it
+  * Adding TLS support to bucket-based site seems to require a few <a href="https://geekflare.com/gcs-site-over-https/">extra hops</a></p>
+
+<p>Instead I decided to push to App Engine.  App Engine is pretty flexible, but it is in particular capable of doing static bucket-backed sites with a regex-based router in front, and offers easy TLS setup.  This is pretty much exactly what I needed.</p>
+
+<p>First focus on deploying a site with correct routing.  If I generate my Hugo site:</p>
+
+<pre><code> &gt; cd mysite
+ &gt; hugo
+ &gt; ls public
+android-chrome-192x192.png
+android-chrome-512x512.png
+apple-touch-icon.png
+browserconfig.xml
+categories
+css
+favicon-16x16.png
+favicon-32x32.png
+favicon.ico
+img
+index.html
+index.xml
+mstile-144x144.png
+mstile-150x150.png
+mstile-310x150.png
+mstile-310x310.png
+mstile-70x70.png
+posts
+safari-pinned-tab.svg
+sitemap.xml
+site.webmanifest
+tags
+</code></pre>
+
+<p>then there&rsquo;s only a few things I actually care about in there.  Specifically, I want the <code>index.html</code>, the <code>posts</code> directory and all its contents (an <code>index.html</code> and, for each post, a file <code>posts/mypost/index.html</code>), and finally the <code>css</code> directory.  I wrote an <code>app.yaml</code> file that would capture everything I cared about and do the expected redirects:</p>
+
+<pre><code>runtime: python27
+api\_version: 1
+threadsafe: true
+
+handlers:
+- url: /(|index.html)
+  static\_files: public/index.html
+  upload: public/index.html
+
+- url: /posts/(|index.html)
+  static\_files: posts/index.html
+  upload: public/posts/index.html
+
+- url: /posts/(.\*)/
+  static\_files: public/posts/\1/index.html
+  upload: public/posts/(.\*)/index.html
+
+- url: /css
+  static\_dir: public/css
+</code></pre>
+
+<p>To get my page running on the appspot domain, it&rsquo;s now just a case of <code>gcloud app deploy</code>.</p>
+
+<p>Now focus on the custom domain and TLS.  I bought the domain I wanted from Google Domains and verified it using <code>gcloud domains verify</code>.  To actually use this for my static site, I simply had to run <code>gcloud app domain-mappings create</code>.  This gave me back a bunch of A/AAAA records which I added within the Google Domains UI.  (If I understand correctly, these DNS records point at the app engine load balancer, and since I have created a mapping for my URL to my app engine instance the load balancer knows to reverse proxy incoming requests to my app engine instance.)  The nicest part about all of this is that the TLS certificate generation was automatic at this point, so after a short delay for the DNS propagation and certificate generation I had my web page running with TLS on my own domain like I wanted.</p>
+
+<p>I&rsquo;ve used app engine before, but I was impressed how easy this integrates with custom domains and TLS.  The whole process was well under an hour, and would have been even less if I hadn&rsquo;t spent some time playing around with the direct-from-bucket idea.</p>
+
+<p>I was also pleased enough with Hugo that I decided to retire my bash static site generator and port my personal web page.  Maybe that means I&rsquo;m more likely to write stuff now :)</p>
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+</article>
+
+
+      </div>
+    </div>
+  </main>
+  
+
+</body>
+</html>

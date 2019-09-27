@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet type="text/xsl" href="https://mjdickson.dev/xml/base.min.xml" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on Martin Dickson</title>
+    <link>https://mjdickson.dev/categories/</link>
+    <description>Recent content in Categories on Martin Dickson</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <atom:link href="https://mjdickson.dev/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Setting up a static web page in 2019</title>
+      <link>https://mjdickson.dev/posts/setting-up-a-static-webpage-in-2019/</link>
+      <pubDate>Mon, 23 Sep 2019 07:26:00 +0100</pubDate>
+      <guid>https://mjdickson.dev/posts/setting-up-a-static-webpage-in-2019/</guid>
+      <description>&lt;p&gt;I was recently setting up a website for a small &lt;a href=&#34;https://funtastictravels.business&#34;&gt;travel blog&lt;/a&gt;.  We wanted a reasonable looking static site, content supplied via markdown files, hosted on a custom domain and supporting TLS.  I&amp;rsquo;m not sure what the quickest way to do this is in 2019, but it probably involves Netlify.  I went down a Hugo / Google Domains / App Engine route, and it was still pretty slick.&lt;/p&gt;
+
+&lt;p&gt;First the static site generator.  There are &lt;em&gt;so many&lt;/em&gt; static site generators out there, but I&amp;rsquo;d never found one I liked.  In fact I wrote my own one in bash for the site you&amp;rsquo;re currently reading:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rm -rf www 
+mkdir -p www/posts
+
+# generate all the post pages
+pushd content/posts
+for filename in *.html; do
+	cat ../../includes/meta.html ../../includes/header.html &amp;quot;$filename&amp;quot; ../../includes/footer.html &amp;gt; ../../www/posts/&amp;quot;$filename&amp;quot;
+done
+
+# generate the body of the post aggregation page
+rm ../posts.html
+echo &#39;&amp;lt;div class=&amp;quot;container home&amp;quot;&amp;gt;&#39; &amp;gt;&amp;gt; ../posts.html
+posts=`ls . | sort -r`
+for filename in $posts; do
+	lastline=`cat $filename | grep -n &#39;&amp;lt;/p&amp;gt;&#39; | cut -d&#39;:&#39; -f1 | head -n 1`
+	snippet=`cat $filename | tail -n +2 | head -n $(($lastline-1))`
+	echo &amp;quot;$snippet&amp;quot; &amp;gt;&amp;gt; ../posts.html
+	echo &amp;quot;&amp;lt;a href=&amp;quot;/posts/$filename&amp;quot;&amp;gt;(read more)&amp;lt;/a&amp;gt;&amp;quot; &amp;gt;&amp;gt; ../posts.html
+done
+echo &#39;&amp;lt;/div&amp;gt;&#39; &amp;gt;&amp;gt; ../posts.html
+popd
+
+# generate top level pages
+pushd content
+for filename in \*.html; do
+	basefilename=${filename::-5}
+	mkdir -p ../www/$basefilename
+	cat ../includes/meta.html ../includes/header.html &amp;quot;$filename&amp;quot; ../includes/footer.html &amp;gt; ../www/&amp;quot;$basefilename&amp;quot;/index.html
+done
+popd
+
+mkdir -p www/css
+cp css/style.css www/css/style.css
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The less said about this the better.&lt;/p&gt;
+
+&lt;p&gt;This time, I tried &lt;a href=&#34;https://gohugo.io/&#34;&gt;Hugo&lt;/a&gt; again, and it was easier to get something I liked the look of than I remember.  I followed the &lt;a href=&#34;https://gohugo.io/getting-started/quick-start/&#34;&gt;quickstart&lt;/a&gt; and found a sufficiently frivolous &lt;a href=&#34;https://themes.gohugo.io/theme/papercss-hugo-theme/&#34;&gt;theme&lt;/a&gt;, and had something which looked like what I wanted running on localhost within 5 minutes.&lt;/p&gt;
+
+&lt;p&gt;I got sidetracked at this point by the &lt;code&gt;hugo deploy&lt;/code&gt; &lt;a href=&#34;https://gohugo.io/hosting-and-deployment/hugo-deploy/&#34;&gt;command&lt;/a&gt; which I could use to push my static site to a GCS bucket.  I found two issues (probably both surmountable) with a purely bucket-based site though:
+  * Visiting &lt;code&gt;http://mysite.com&lt;/code&gt; should show you the HTML in &lt;code&gt;http://mysite.com/index.html&lt;/code&gt;, but this behaviour didn&amp;rsquo;t come for free from the bucket and I wasn&amp;rsquo;t sure how to configure it
+  * Adding TLS support to bucket-based site seems to require a few &lt;a href=&#34;https://geekflare.com/gcs-site-over-https/&#34;&gt;extra hops&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Instead I decided to push to App Engine.  App Engine is pretty flexible, but it is in particular capable of doing static bucket-backed sites with a regex-based router in front, and offers easy TLS setup.  This is pretty much exactly what I needed.&lt;/p&gt;
+
+&lt;p&gt;First focus on deploying a site with correct routing.  If I generate my Hugo site:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; &amp;gt; cd mysite
+ &amp;gt; hugo
+ &amp;gt; ls public
+android-chrome-192x192.png
+android-chrome-512x512.png
+apple-touch-icon.png
+browserconfig.xml
+categories
+css
+favicon-16x16.png
+favicon-32x32.png
+favicon.ico
+img
+index.html
+index.xml
+mstile-144x144.png
+mstile-150x150.png
+mstile-310x150.png
+mstile-310x310.png
+mstile-70x70.png
+posts
+safari-pinned-tab.svg
+sitemap.xml
+site.webmanifest
+tags
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;then there&amp;rsquo;s only a few things I actually care about in there.  Specifically, I want the &lt;code&gt;index.html&lt;/code&gt;, the &lt;code&gt;posts&lt;/code&gt; directory and all its contents (an &lt;code&gt;index.html&lt;/code&gt; and, for each post, a file &lt;code&gt;posts/mypost/index.html&lt;/code&gt;), and finally the &lt;code&gt;css&lt;/code&gt; directory.  I wrote an &lt;code&gt;app.yaml&lt;/code&gt; file that would capture everything I cared about and do the expected redirects:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;runtime: python27
+api\_version: 1
+threadsafe: true
+
+handlers:
+- url: /(|index.html)
+  static\_files: public/index.html
+  upload: public/index.html
+
+- url: /posts/(|index.html)
+  static\_files: posts/index.html
+  upload: public/posts/index.html
+
+- url: /posts/(.\*)/
+  static\_files: public/posts/\1/index.html
+  upload: public/posts/(.\*)/index.html
+
+- url: /css
+  static\_dir: public/css
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To get my page running on the appspot domain, it&amp;rsquo;s now just a case of &lt;code&gt;gcloud app deploy&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Now focus on the custom domain and TLS.  I bought the domain I wanted from Google Domains and verified it using &lt;code&gt;gcloud domains verify&lt;/code&gt;.  To actually use this for my static site, I simply had to run &lt;code&gt;gcloud app domain-mappings create&lt;/code&gt;.  This gave me back a bunch of A/AAAA records which I added within the Google Domains UI.  (If I understand correctly, these DNS records point at the app engine load balancer, and since I have created a mapping for my URL to my app engine instance the load balancer knows to reverse proxy incoming requests to my app engine instance.)  The nicest part about all of this is that the TLS certificate generation was automatic at this point, so after a short delay for the DNS propagation and certificate generation I had my web page running with TLS on my own domain like I wanted.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ve used app engine before, but I was impressed how easy this integrates with custom domains and TLS.  The whole process was well under an hour, and would have been even less if I hadn&amp;rsquo;t spent some time playing around with the direct-from-bucket idea.&lt;/p&gt;
+
+&lt;p&gt;I was also pleased enough with Hugo that I decided to retire my bash static site generator and port my personal web page.  Maybe that means I&amp;rsquo;m more likely to write stuff now :)&lt;/p&gt;
+</description>
+    </item>
+    <item>
+      <title>A project using Rust FFI and CLI helpers</title>
+      <link>https://mjdickson.dev/posts/rust-cli-and-ffi/</link>
+      <pubDate>Tue, 27 Nov 2018 07:24:00 +0100</pubDate>
+      <guid>https://mjdickson.dev/posts/rust-cli-and-ffi/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve been learning Rust recently. I started off with the &lt;a href=&#34;https://doc.rust-lang.org/book/second-edition/index.html&#34;&gt;Rust
+book&lt;/a&gt;, which
+is excellent, particularly for people like me who don&amp;rsquo;t have a huge
+amount of experience in lower level languages. (I could well imagine
+more experienced readers would find it quite verbose, though). The final
+project in the book was building a small multithreaded webserver, which
+I think is a really good thing to build when assessing any new language.&lt;/p&gt;
+
+&lt;p&gt;My only issue with the Rust book was that it does give you quite a lot
+of hints. Particularly for the borrowing rules, I felt like I had some
+understanding of how they worked, but knew it would be harder were I
+writing all the code myself. I knew I had to be introducing my own
+borrowing errors to start getting a real feel for how the language
+works.&lt;/p&gt;
+
+&lt;p&gt;I had a decent small project ready to go. I&amp;rsquo;ve been getting frustrated
+by having to start Python every time I want to manually hash or check a
+password matches a hash with &lt;a href=&#34;https://pypi.org/project/bcrypt/&#34;&gt;bcrypt&lt;/a&gt;.
+I thought that it would be a good starting point with Rust to make a CLI
+tool, exposing the same API as the Python library but consumable
+directly from the terminal.&lt;/p&gt;
+
+&lt;p&gt;So I made &lt;a href=&#34;https://github.com/mjd95/bcrust&#34;&gt;bcrust&lt;/a&gt;. It uses &lt;code&gt;clap&lt;/code&gt; to
+structure the command line part, which seems like a pretty nice way to
+get argument parsing and help in place quickly. To understand how to
+call the C code actually implementing &lt;code&gt;bcrypt&lt;/code&gt; I used both the
+&lt;a href=&#34;https://doc.rust-lang.org/nomicon/&#34;&gt;Rustonomicon&lt;/a&gt; and &lt;a href=&#34;https://github.com/alexcrichton/rust-ffi-examples/tree/master/rust-to-c&#34;&gt;Alex Crichton&amp;rsquo;s
+FFI
+examples&lt;/a&gt;,
+with the latter being particularly helpful explaining how to build the C
+code along as part of &lt;code&gt;cargo build&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Most of the times I got confused during this project were somewhere
+between the Rust and C interface, particularly what exactly was being
+passed from the former to the latter. For example, if I invoked&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;bcrust checkpw my_password &amp;lt;some_hash&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;then Rust would happily extract a &lt;code&gt;&amp;amp;str&lt;/code&gt; &lt;code&gt;my_password&lt;/code&gt;. I pass then pass
+this to C as a slice of bytes. In C world, you have a &lt;code&gt;*const char&lt;/code&gt;,
+which you think of as a string by marking the end with a null byte.
+However, when C attempted to read the string in this way, it would
+always interpret the password as &lt;code&gt;my_passwordcheckpw&lt;/code&gt;. I&amp;rsquo;m not really
+sure why this was happening, presumably something to do with how &lt;code&gt;clap&lt;/code&gt;
+was storing the arguments that it had parsed. In order to get around it,
+I had to explicitly set a null byte at the end of what I wanted to pass
+from Rust to C. There were a few segmentation faults along the way too,
+but these were generally fixed by going back and reading the Rust FFI
+docs.&lt;/p&gt;
+
+&lt;p&gt;Overall this was a nice small project, and I feel like I know a little
+bit more about Rust now. There&amp;rsquo;s a few more things I&amp;rsquo;d like to do with
+it (clean up the code, add some tests), but it&amp;rsquo;s at least at the
+&amp;ldquo;working&amp;rdquo; stage now. The code is
+&lt;a href=&#34;https://github.com/mjd95/bcrust&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;/div&gt;&lt;/p&gt;
+</description>
+    </item>
+    <item>
+      <title>Using wildcard DNS locally</title>
+      <link>https://mjdickson.dev/posts/local-wildcard-dns/</link>
+      <pubDate>Thu, 27 Sep 2018 00:00:00 +0000</pubDate>
+      <guid>https://mjdickson.dev/posts/local-wildcard-dns/</guid>
+      <description>&lt;p&gt;At work, we have a number of dynamically provisioned backend services.
+When they are created, an entry &lt;code&gt;(&amp;lt;dynamic-part&amp;gt;, &amp;lt;ip&amp;gt;)&lt;/code&gt; is written to
+our etcd cluster. The URLs are specified by a well-known scheme, so a
+client knows which URL to dial - something like
+&lt;code&gt;&amp;lt;dynamic-part&amp;gt;.&amp;lt;static-part&amp;gt;.com&lt;/code&gt;. There is a reverse proxy running
+providing a resolution service, and there is a wildcard DNS entry
+&lt;code&gt;*.&amp;lt;static-part&amp;gt;.com&lt;/code&gt; which points to that service. The remaining
+resolution is done with an etcd lookup.&lt;/p&gt;
+
+&lt;p&gt;I sometimes need to mimic this flow locally, so I need a way of sending
+all requests under a given domain to some service running on my own
+machine.&lt;/p&gt;
+
+&lt;p&gt;Unfortunately, one cannot just add wildcard entries to &lt;code&gt;/etc/hosts&lt;/code&gt;, so
+a bit more work is needed. One way to solve this is to run a local DNS
+server and have it &amp;ldquo;re-implement &lt;code&gt;/etc/hosts&lt;/code&gt;, allowing wildcards&amp;rdquo;. This
+is actually pretty easy in Go, using the fantastic
+&lt;a href=&#34;https://github.com/miekg/dns&#34;&gt;miekg/dns&lt;/a&gt; library for DNS. I&amp;rsquo;ll now walk
+through that with a simple example.&lt;/p&gt;
+
+&lt;p&gt;First let&amp;rsquo;s create a backend HTTP server (&lt;code&gt;example/server.go&lt;/code&gt;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;package main
+
+        import (
+            &amp;quot;fmt&amp;quot;
+            &amp;quot;log&amp;quot;
+            &amp;quot;net/http&amp;quot;
+        )
+
+        func main() {
+            http.HandleFunc(&amp;quot;/&amp;quot;, func (w http.ResponseWriter, r *http.Request) {
+                fmt.Fprintf(&amp;quot;hello!\n&amp;quot;)
+            })
+            log.Fatal(http.ListenAndServe(&amp;quot;:8080&amp;quot;, nil))
+        }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let&amp;rsquo;s pretend that this is running at &lt;code&gt;foo.bar&lt;/code&gt;, and create a client for
+dialing it (&lt;code&gt;example/client.go&lt;/code&gt;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;package main
+
+        import (
+            &amp;quot;fmt&amp;quot;
+            &amp;quot;io/ioutil&amp;quot;
+            &amp;quot;net/http&amp;quot;
+        )
+
+        func main() {
+            url := &amp;quot;http://foo.bar:8080&amp;quot;
+
+            resp, err := http.Get(url)
+            if err != nil {
+                panic(err)
+            }
+            defer resp.Body.Close()
+
+            body, err := ioutil.ReadAll(resp.Body)
+            if err != nil {
+                panic(err)
+            }
+            fmt.Println(string(body))
+        }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In one terminal, do &lt;code&gt;go run example/server.go&lt;/code&gt;. In another terminal, do
+&lt;code&gt;go run example/client.go&lt;/code&gt;. Oops! That didn&amp;rsquo;t work. To fix it, we need
+to add the following line to &lt;code&gt;/etc/hosts&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;127.0.0.1    foo.bar
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Do &lt;code&gt;go run example/client.go&lt;/code&gt; again all is good.&lt;/p&gt;
+
+&lt;p&gt;Now suppose we change &lt;code&gt;example/client.go&lt;/code&gt; to dial a random URL:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;package main
+
+        import (
+            &amp;quot;fmt&amp;quot;
+            &amp;quot;time&amp;quot;
+            &amp;quot;io/ioutil&amp;quot;
+            &amp;quot;math/rand&amp;quot;
+            &amp;quot;net/http&amp;quot;
+        )
+
+        func main() {
+            rand.Seed(time.Now().UnixNano())
+            url := fmt.Sprintf(&amp;quot;http://foo-%d.bar&amp;quot;, rand.Intn(100))
+
+            resp, err := http.Get(url)
+            if err != nil {
+                panic(err)
+            }
+            defer resp.Body.Close()
+
+            body, err := ioutil.ReadAll(resp.Body)
+            if err != nil {
+                panic(err)
+            }
+            fmt.Println(string(body))
+        }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We would like this request to still be handled by &lt;code&gt;example/server.go&lt;/code&gt;,
+but of course &lt;code&gt;go run example/client.go&lt;/code&gt; won&amp;rsquo;t work right now. In fact,
+we can&amp;rsquo;t really know what the URL is going to be in advance, so we can&amp;rsquo;t
+fix this by adding a single entry &lt;code&gt;foo-&amp;lt;number&amp;gt;.bar&lt;/code&gt; to &lt;code&gt;/etc/hosts&lt;/code&gt;.
+Unfortunately, we can&amp;rsquo;t simply add &lt;code&gt;*.bar&lt;/code&gt; to &lt;code&gt;/etc/hosts&lt;/code&gt; either,
+because wildcard entries are not supported. We &lt;em&gt;could&lt;/em&gt; fix it by adding
+entries for each of &lt;code&gt;foo-1.bar&lt;/code&gt;, &lt;code&gt;foo-2.bar&lt;/code&gt;, &amp;hellip;, &lt;code&gt;foo-100.bar&lt;/code&gt;, but no
+one wants to do that!&lt;/p&gt;
+
+&lt;p&gt;Instead, we will implement just enough of a DNS server to deal with
+outgoing traffic under some wildcard domains we specify in a hosts file.
+First we create the file &lt;code&gt;hosts&lt;/code&gt; with content&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;127.0.0.1    *.bar
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then create the DNS server &lt;code&gt;dns_server.go&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;package main
+
+        import (
+                &amp;quot;bufio&amp;quot;
+                &amp;quot;fmt&amp;quot;
+                &amp;quot;os&amp;quot;
+                &amp;quot;strings&amp;quot;
+                &amp;quot;github.com/miekg/dns&amp;quot;
+        )
+
+        const wildcardHostsFilename = &amp;quot;hosts&amp;quot;
+
+        func main() {
+                dns.HandleFunc(&amp;quot;.&amp;quot;, handler)
+                server := &amp;amp;dns.Server{Addr: &amp;quot;:53&amp;quot;, Net: &amp;quot;udp&amp;quot;}
+                if err := server.ListenAndServe(); err != nil {
+                        panic(err)
+                }   
+        }
+
+        func handler(w dns.ResponseWriter, r *dns.Msg) {
+                names := getNamesFromMessage(r)
+                for _, name := range names {
+                        if result := checkForMatchInFile(name); result != &amp;quot;&amp;quot; {
+                                m := new(dns.Msg)
+                                m.SetReply(r)
+                                rr, err := dns.NewRR(fmt.Sprintf(&amp;quot;%s A %s&amp;quot;, name, result))
+                                if err == nil {
+                                        m.Answer = append(m.Answer, rr) 
+                                }   
+                                w.WriteMsg(m)
+                        }
+                }
+
+                defaultMux := dns.NewServeMux()
+                defaultMux.ServeDNS(w, r)
+        }
+
+        // snip
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This uses the external dependency &lt;code&gt;miekg/dns&lt;/code&gt;, so you&amp;rsquo;ll want to do
+&lt;code&gt;go get github.com/miekg/dns&lt;/code&gt;. Since the DNS server runs on a
+privileged port, you&amp;rsquo;ll need &lt;code&gt;sudo&lt;/code&gt; to run it. You&amp;rsquo;ll probably want to
+forward your environment variables (particularly the &lt;code&gt;GOPATH&lt;/code&gt;) to the
+&lt;code&gt;sudo&lt;/code&gt; environment, so you can run this with
+&lt;code&gt;sudo -E bash -c &#39;go run dns_server.go&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The only thing that remains is to actually use this DNS server, so add
+an entry to the top of your &lt;code&gt;/etc/resolv.conf&lt;/code&gt; with&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;nameserver 127.0.0.1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now with both &lt;code&gt;dns_server.go&lt;/code&gt; and &lt;code&gt;example/server/server.go&lt;/code&gt; running,
+you can run &lt;code&gt;example/client/client.go&lt;/code&gt; again and it will work, no matter
+what URL is randomly generated!&lt;/p&gt;
+
+&lt;p&gt;See &lt;a href=&#34;http://www.github.com/mjd95/local-wildcard-dns&#34;&gt;the code&lt;/a&gt; on GitHub
+for the full example.&lt;/p&gt;
+
+&lt;p&gt;&lt;/div&gt;&lt;/p&gt;
+</description>
+    </item>
+  </channel>
+</rss>

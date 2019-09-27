@@ -1,0 +1,4 @@
+baseURL = "https://mjdickson.dev/"
+languageCode = "en-us"
+title = "Martin Dickson"
+theme = "hugo-flex"

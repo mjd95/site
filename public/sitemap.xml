@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://mjdickson.dev/</loc>
+    <lastmod>2019-09-23T07:26:00+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mjdickson.dev/posts/</loc>
+    <lastmod>2019-09-23T07:26:00+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mjdickson.dev/posts/setting-up-a-static-webpage-in-2019/</loc>
+    <lastmod>2019-09-23T07:26:00+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mjdickson.dev/posts/rust-cli-and-ffi/</loc>
+    <lastmod>2018-11-27T07:24:00+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mjdickson.dev/posts/local-wildcard-dns/</loc>
+    <lastmod>2018-09-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mjdickson.dev/about/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://mjdickson.dev/research/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://mjdickson.dev/categories/</loc>
+  </url>
+  
+  <url>
+    <loc>https://mjdickson.dev/tags/</loc>
+  </url>
+  
+</urlset>
