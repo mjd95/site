@@ -9,6 +9,814 @@
     <language>en-us</language>
     <atom:link href="https://mjdickson.dev/categories/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Deep Learning Notes Part 1</title>
+      <link>https://mjdickson.dev/posts/goodfellow-deep-learning-pt1/</link>
+      <pubDate>Tue, 24 Sep 2019 08:08:00 +0100</pubDate>
+      <guid>https://mjdickson.dev/posts/goodfellow-deep-learning-pt1/</guid>
+      <description>
+
+&lt;p&gt;I&amp;rsquo;ve been reading the book &lt;a href=&#34;https://www.deeplearningbook.org/&#34;&gt;Deep Learning (Goodfellow et. al)&lt;/a&gt; recently.  I&amp;rsquo;m doing this with a view to filling in gaps about my deep learning knowledge, as most of my learning in the past has been from random blogs posts and the occassional research paper.&lt;/p&gt;
+
+&lt;p&gt;Since this is a fairly long book and I am constrained in the amount of time I can dedicate to reading it, I&amp;rsquo;ve tried an experiment with keeping quick markdown notes of what I&amp;rsquo;ve read.  This means that when I come back to reading after a short break, I can remember the salient points of where I was by a quick skim over my notes.&lt;/p&gt;
+
+&lt;p&gt;In the unlikely situation that my notes could be useful to anyone else, I though I&amp;rsquo;d post them here.  Due to my background, I skipped the mathematical prelude before Chapter 5.  This posts covers the first half of my reading, Chapters 5-8, which is roughly the &amp;ldquo;groundwork&amp;rdquo; before we look at some specific kinds of neural nets (CNNs and RNNs) and research applications.&lt;/p&gt;
+
+&lt;h2 id=&#34;chapter-5-machine-learning-basics&#34;&gt;Chapter 5 - Machine Learning Basics&lt;/h2&gt;
+
+&lt;h3 id=&#34;learning-algorithms&#34;&gt;Learning Algorithms&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;A computer program is said to learn from experience $E$ to do task $T$, measured by performance measure $P$, if its performance at $T$, as measured by $P$, is improved with $E$&lt;/li&gt;
+&lt;li&gt;Some examples of tasks you might want to perform:
+
+&lt;ul&gt;
+&lt;li&gt;Classification: learn a function $f: \mathbb{R}^n \to {1,&amp;hellip;,k}$, or output a probability distribution over the classes,&lt;/li&gt;
+&lt;li&gt;Regression: predict $f: \mathbb{R}^n \to \mathbb{R}$, such as predicting a house price&lt;/li&gt;
+&lt;li&gt;Transcription (OCR, speech recognition), machine translation, anomaly detection, estimating pdfs, &amp;hellip;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;E.g. performance measure: for classification, could measure performance by accuracy (ratio of correct/all) or error rate (incorrect/all).  Can think of error rate as expected 0-1 loss (lose 0 if correct, lose 1 if incorrect).&lt;/li&gt;
+&lt;li&gt;Supervised vs unsupervised is a differentation between the kind of experience the process is allowed
+
+&lt;ul&gt;
+&lt;li&gt;In a technical sense, there isn&amp;rsquo;t a huge difference.  In supervised learning, you&amp;rsquo;re definitely learning $p(y|\mathbf{x})$.  In unsupervised, you&amp;rsquo;re arguably learning $p(\mathbf{x})$.  By ordering the features of $\mathbf{x}$ and succcessively conditioning on them, the latter reduces to the former.&lt;/li&gt;
+&lt;li&gt;In practice, what is computationally tractable is presumably very different&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Reinforcement learning is out of scope for this book&lt;/li&gt;
+&lt;li&gt;Details of simplest example of machine learning (linear regression):
+
+&lt;ul&gt;
+&lt;li&gt;We are learning a linear function $f: \mathbb{R}^n \to \mathbb{R}$
+
+&lt;ul&gt;
+&lt;li&gt;Task $T$ is to predict $y$ from $\mathbf{x}$ by outputting $y = \mathbf{w}^{\intercal} \mathbf{x}$&lt;/li&gt;
+&lt;li&gt;Experience $E$ will be whatever dataset we give it, i.e. the pairs $(\mathbf{x}, y)$&lt;/li&gt;
+&lt;li&gt;Performance measure $P$ is to what extent it minimises the MSE loss function on the test data set&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Intuitively, it makes sense to choose the weight $\mathbb{w}$ that minimise the MSE on the training dataset.  This can be found with basic calculus.  (These are the &lt;em&gt;normal equations&lt;/em&gt;)&lt;/li&gt;
+&lt;li&gt;Now we have a $\mathbb{w}$ and can make predictions.  They&amp;rsquo;re probably reasonably good.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;capacity-overfitting-and-underfitting&#34;&gt;Capacity, Overfitting and Underfitting&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Minimising the training error in itself (like linear regression above) is just an optimisation problem&lt;/li&gt;
+&lt;li&gt;Generalisation/test error is the expected error on a new input, with expectation being taken across possible inputs.  This is what we really care about
+
+&lt;ul&gt;
+&lt;li&gt;Obviously this is hard to compute in practice, but it can be estimated by averaging the error on a reasonable number of test examples&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Statistical learning theory comes in to play:
+
+&lt;ul&gt;
+&lt;li&gt;For the algorithm to have any success, obviously there has to be some relation between the training set and the test set&lt;/li&gt;
+&lt;li&gt;Typically, examples are assumed iid, and training and test examples are drawn from the same population&lt;/li&gt;
+&lt;li&gt;The underlying distribution is called the data-generating distribution, $p_{\text{data}}$&lt;/li&gt;
+&lt;li&gt;Since they are drawn from the same data-generating distribution, clearly if we fix the parameters and calculate the expected training and test errors, they are the same&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;In practice, you set the parameters only after examining the training set, then compute the expected test error.  So the expected test error is $&amp;gt;=$ to expected training error&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Underfitting&lt;/em&gt;: when the model can&amp;rsquo;t get a low error on the training set&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Overfitting&lt;/em&gt;: when the test error is much larger than training error&lt;/li&gt;
+&lt;li&gt;Since expected test error $&amp;gt;=$ expected training error, both underfitting and overfitting mean bad (expected) test errors&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Model capacity&lt;/em&gt;: think of large capacity = high degree polynomial fit.  Large capacity tends to overfit, low capacity tends to underfit&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Representational capacity&lt;/em&gt;: the family of functions the learning algorithm can choose (e.g. in my setup, maybe I&amp;rsquo;m fitting a polynomial and any polynomial of deg $&amp;lt;=10$ is fair game)&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Effective capacity&lt;/em&gt;: what the learning algorithm can actually reach inside the representational capacity, given the shortcomings of the optimisation algorithm (e.g., walking in the space of polynomials of degree $&amp;lt;=10$ with discrete step sizes =&amp;gt; not all real coefficients are possible =&amp;gt; only a subset of polynomials are actually reachable)&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Vapnik-Chervonenkis dimension&lt;/em&gt;: measures the capacity of a binary classifier.
+
+&lt;ul&gt;
+&lt;li&gt;Defined as largest $m$ s.t. there exists a training set of size $m$ different points that the classifier can label arbitrarily.&lt;/li&gt;
+&lt;li&gt;So for example a classifier which just assigns the same label to all samples has a VC dimension of $0$.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Statistical learning theory&lt;/em&gt;: proves theorems like $(\text{test error}) &amp;lt;= (\text{training error}) \times f(\text{capacity}, \text{# training samples})$, where $f$ increases as capacity does, but decreases as # training samples does.
+
+&lt;ul&gt;
+&lt;li&gt;In practice, have no idea what the capacity of deep learning algorithms are.&lt;/li&gt;
+&lt;li&gt;The optimisation algorithm affects the capacity (effective capacity vs. representational capacity), and we don&amp;rsquo;t understand the optimisation algorithm&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Parametric models&lt;/em&gt;: learn a function described by a parameter vector whose size is finite and fixed before any data is observed
+
+&lt;ul&gt;
+&lt;li&gt;E.g. linear regression is a parametric model - there is a fixed number of weights before starting&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Non-parametrics models are everything else
+
+&lt;ul&gt;
+&lt;li&gt;E.g. nearest neighbour regression: given a test sample $\mathbf{x}$, I search through all my training samples $\mathbf{X}$ and find the one closest to $\mathbf{x}$, and return the output $y$ for that closest training sample.&lt;/li&gt;
+&lt;li&gt;Could also allow the parameter list to grow inside a parametric model, e.g. allow unbounded polynomial expansions of input to linear regression&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Bayes error&lt;/em&gt;: error of a classifier which knows the true joint probability distrubtion of $(\mathbf{x}, y)$.  If $\mathbf{x} \to y$ is deterministic then Bayes error is zero, but otherwise it will be non-zero.&lt;/li&gt;
+&lt;li&gt;No free lunch theorem: averaged over all possible data-generating distributions, every classification algorithm has the same error rate when classifying previously unobserved points
+
+&lt;ul&gt;
+&lt;li&gt;I.e. there is no &amp;ldquo;universally good&amp;rdquo; classifier&lt;/li&gt;
+&lt;li&gt;I.e. need to choose the right classifer for the right problem&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Regularisation: roughly, making the learning algorithm prefer one solution over another
+
+&lt;ul&gt;
+&lt;li&gt;E.g. weight decay in linear regression.  Instead of just minimising the MSE on the training set, we now minimise $J(\mathbf{w}) = \text{MSE}_{\text{train}} + \lambda \mathbf{w}^{\intercal} \mathbf{w}$.  When $\lambda = 0$ this is the same as before, but when $\lambda$ is large it forces us to prefer $\mathbf{w}$ whose coefficients are small&lt;/li&gt;
+&lt;li&gt;Previously we flat-out excluded certain functions from the hypothesis space of functions.  In a sense, this is expressing an infinitely strong preference against that function.  Regularisation more generally gives a more nuanced approach&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Regularisation: actual definition given, any modification we make to a learning algorithm that is intended to reduce its generalisation error but not its training error&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;hyperparameters-and-validation-sets&#34;&gt;Hyperparameters and Validation sets&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Hyperparameters: settings we use to control an algorithm&amp;rsquo;s behaviour
+
+&lt;ul&gt;
+&lt;li&gt;E.g. degree of polynomial in linear regression, value of the weight decay parameter $\lambda$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Could deem any parameter a hyperparameter (and hence stop the learning algorithm from to optimise it)
+
+&lt;ul&gt;
+&lt;li&gt;Maybe because some parameter is difficult to optimise&lt;/li&gt;
+&lt;li&gt;Maybe because it doesn&amp;rsquo;t make sense to attempt to learn that parameter in the current problem.  E.g. don&amp;rsquo;t try to learn $\lambda$ in your linear regression problem with large capacity, because it&amp;rsquo;s definitely going to overfit by picking $\lambda=0$ and a high degree polynomial&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Use a validation set for checking hyperparameters.  We still keep the test set separate (model, including its hyerparameters, should know nothing about the test set).  Instead, we split the training set in to two parts.  Fix the hyperparameters and use the first part to learn the parameters.  Then use the second part to estimate the generalisation error.  If it looks terrible, go back and tweak the hyperparameters.  If it looks good, proceed to the test set.
+
+&lt;ul&gt;
+&lt;li&gt;Somewhat confusing, the &amp;ldquo;first part of the training set&amp;rdquo; is called the training set as well.&lt;/li&gt;
+&lt;li&gt;Rule of thumb: roughly 80% of the training data goes to actual training, roughly 20% goes to validation&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;If the dataset available to you is small, dividing in to a fixed training and test set is problematic.  With little data, there is lots of statistical uncertainty.&lt;/li&gt;
+&lt;li&gt;Cross-validation gets round this, at cost of increased computation.
+
+&lt;ul&gt;
+&lt;li&gt;E.g. $k$-fold cross-validation.  Split the dataset in to $k$ parts.  Do $k$ passes through the data.  On the $i$th pass, declare the $i$th part to be the test set and the rest to be the training set.&lt;/li&gt;
+&lt;li&gt;Can do the same thing with training/validation/test splits&lt;/li&gt;
+&lt;li&gt;Cross-validation is potentially problematic, &lt;a href=&#34;http://www.jmlr.org/papers/volume5/grandvalet04a/grandvalet04a.pdf&#34;&gt;Bengio and Grandvalet (2004)&lt;/a&gt; probably worth reading&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;estimators-bias-and-variance&#34;&gt;Estimators, Bias, and Variance&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Basic stats things like parameter estimation, bias, and variance are used in ML to talk about generalization, underfitting, and overfitting&lt;/li&gt;
+&lt;li&gt;Point estimation: supposed to capture notion of providing a single &amp;ldquo;best&amp;rdquo; prediction of a quantity of interest&lt;/li&gt;
+&lt;li&gt;Given $m$ iid data points $\mathbf{x}^{(1)}, &amp;hellip;, \mathbf{x}^{(m)}$, define a &lt;em&gt;point estimate&lt;/em&gt; (or &lt;em&gt;statistic&lt;/em&gt;) as any function of the data $\widehat{\theta}_{m} = g(\mathbf{x}^{(1)}, &amp;hellip;, \mathbf{x}^{(m)})$.
+
+&lt;ul&gt;
+&lt;li&gt;This definition is literally any function of the data, doesn&amp;rsquo;t have to be related to anything&lt;/li&gt;
+&lt;li&gt;Obviously in practice we are interested in functions for which $\widehat{\theta}_m$ is close to some quantity of interest $\theta$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Take the frequentist approach: assume the true value of $\theta$ is fixed but unknown.  Note that since $\widehat{\theta}$ is a function of the data, which is drawn from a probability distribution, $\widehat{\theta}$ is itself a random variable&lt;/li&gt;
+&lt;li&gt;Function estimation: estimating a function of the data.  This is just a point estimate in a function space, e.g. linear regression is estimating a point in the space spanned by the coefficients of the weight vector&lt;/li&gt;
+&lt;li&gt;Bias of an estimator: $\text{bias}(\widehat{\theta}_m) = \mathbb{E}(\widehat{\theta}_m) - \theta$. Here the expectation is over the data $\mathbf{x}^{(1)},&amp;hellip;\mathbf{x}^{(m)}$, and $\theta$ is the true value
+
+&lt;ul&gt;
+&lt;li&gt;Say $\widehat{\theta}_m$ is unbiased if $\text{bias}(\widehat{\theta}_m) = 0$&lt;/li&gt;
+&lt;li&gt;Say $(\widehat{\theta}_m)_{m \geq 1}$ is asymptotically unbiased if $\lim_{m \rightarrow \infty} \text{bias}(\widehat{\theta}_m) = 0$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;E.g. Bernoulli distribution with mean $\theta$ (so $P(x; \theta) = \theta^{x} (1-\theta)^{1-x}$).
+
+&lt;ul&gt;
+&lt;li&gt;Given observations $x^{(1)},&amp;hellip;,x^{(m)}$, we might make the point estimate $\widehat{\theta}_m = \frac{1}{m} \sum_{i=1}^m x^{(i)}$&lt;/li&gt;
+&lt;li&gt;Simple calculation shows this is an unbiased estimate of $\theta$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;E.g. Gaussian $\mathcal{N}(x; \mu, \sigma)$
+
+&lt;ul&gt;
+&lt;li&gt;Again with $m$ observations, try the sample mean $\widehat{\mu}_m = \frac{1}{m} \sum_{i=1}^m x^{(i)}$ as an estimator for the mean&lt;/li&gt;
+&lt;li&gt;Very similar computation shows that this is unbiased&lt;/li&gt;
+&lt;li&gt;Now try sample variance $\widehat{\sigma}_m^2 = \frac{1}{m} \sum_{i=1}^m \left(x^{(i)} - \widehat{\mu}_m \right)^2$ as an estimator for the variance&lt;/li&gt;
+&lt;li&gt;Standard calculation shows $\text{bias}(\widehat{\sigma}_m^2) = -\sigma^2/m$, so this is a biased estimator&lt;/li&gt;
+&lt;li&gt;Unbiased sample variance is $\tilde{\sigma}_m^2 = \frac{1}{m-1} \sum_{i=1}^m \left(x^{(i)} - \widehat{\mu}_m \right)^2$&lt;/li&gt;
+&lt;li&gt;This one is unbiased&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;We computed the expectation of an estimator to measure its bias, we can also compute the variance of an estimator.  Intuitively, we&amp;rsquo;d like this variance to be low&lt;/li&gt;
+&lt;li&gt;Write $\text{Var}(\widehat{\theta})$ for the variance (variance over the empirical distribution again), and write $\text{SE}(\widehat{\theta})$ for the standard error (positive square root of the variance)&lt;/li&gt;
+&lt;li&gt;E.g. Standard error of sample mean is $\text{SE}(\widehat{\mu}_m) = \sqrt{\text{Var}(\frac{1}{m}\sum_{i=1}^m x^{(i)})} = \sigma/\sqrt{m}$, where $\sigma$ is the true standard error.
+
+&lt;ul&gt;
+&lt;li&gt;We don&amp;rsquo;t &lt;em&gt;know&lt;/em&gt; $\sigma$ though.  We can attempt to get an &lt;em&gt;estimate&lt;/em&gt; for the standard error of the sample mean by using an estimate for $\sigma$&lt;/li&gt;
+&lt;li&gt;The two we&amp;rsquo;ve seen (square root of sample variance, square root of unbiased sample variance) - both result in biased estimates&lt;/li&gt;
+&lt;li&gt;The square root of the unbiased sample variance is used in practice, it works okay for large $m$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Use of standard error in ML:&lt;br /&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Have some model capable of making predictions.  Look at some of the errors it makes on the test set, and compute the sample mean.&lt;br /&gt;&lt;/li&gt;
+&lt;li&gt;This is an estimate of the true error on the test set, i.e. the generalisation error.  How close this is to the true error depends on size of test set&lt;/li&gt;
+&lt;li&gt;By the central limit theorem, our sample mean is normally distributed around the true error&lt;/li&gt;
+&lt;li&gt;We don&amp;rsquo;t know the standard error of this normal, but we can use an &lt;em&gt;estimate&lt;/em&gt; for the standard error, as above.  Hence we can compute confidence intervals for the true expected error&lt;/li&gt;
+&lt;li&gt;E.g. 95% confidence interval centred on $\widehat{\mu}_m$ is $(\widehat{\mu}_m - 1.96\text{SE}(\widehat{\mu}_m), \widehat{\mu}_m  + 1.96\text{SE}(\widehat{\mu}_m))$ under the normal distribution with mean $\widehat{\mu}_m$ and variance $\text{SE}(\widehat{\mu}_m)^2$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;E.g. Bernoulli distribution
+
+&lt;ul&gt;
+&lt;li&gt;Have sample mean $\widehat{\theta}_m$, compute its variance $\text{Var}(\widehat{\theta}_m)$&lt;/li&gt;
+&lt;li&gt;Turns out $\text{Var}(\widehat{\theta}_m) = \frac{\theta(1-\theta)}{m}$&lt;/li&gt;
+&lt;li&gt;As $m \rightarrow \infty$, $\text{Var}(\widehat{\theta}_m) \rightarrow 0$.  This is quite common&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Intuitively, if you are learning a function and you overfit, you would expect your estimate for that function to have low bias but high variance&lt;/li&gt;
+&lt;li&gt;Similarly, if you underfit, you would expect your estimate for the function to have low variance but potentially high bias&lt;/li&gt;
+&lt;li&gt;Overall quality of an estimate takes both into account.  E.g. the MSE satisfies $\mathbb{E}[(\widehat{\theta}_m - \theta)^2] = \text{bias}(\theta_m) + \text{Var}(\theta_m)$.  There is probably a sweet spot where both bias and variance are reasonably small that gives the best error in the MSE sense&lt;/li&gt;
+&lt;li&gt;Taking an increasing number $m$ of samples from the training set, our estimate $\widehat{\theta}$ is actually a sequence $(\widehat{\theta})_m$.  We say $\widehat{\theta}$ is &lt;em&gt;weakly consistent&lt;/em&gt; if the sequence converges in probability to $\theta$, and is &lt;em&gt;strongly consistent&lt;/em&gt; if the sequence converges almost surely to $\theta$.
+
+&lt;ul&gt;
+&lt;li&gt;I guess we can construct many sequences from one estimator, but they&amp;rsquo;ll converge in probability to each other anyway so it doesn&amp;rsquo;t matter?  Might need some reasonability assumptions on $\widehat{\theta}$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Clearly (weakly) consistent estimators are asymptotically unbiased&lt;/li&gt;
+&lt;li&gt;Converse is false, e.g. estimate the mean of a Gaussian by always saying the mean is always the first value you saw, no matter how many datapoints are thrown at you.  This fits the definition of an estimator, is unbiased (hence asymptotically unbiased), but is not consistent&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;maximum-likelihood-estimation&#34;&gt;Maximum Likelihood Estimation&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Random guessing is probably not a good way to build estimators in general.  MLE is the most common systematic way to do so&lt;/li&gt;
+&lt;li&gt;Have $m$ samples $\mathbf{x}^{(i)}$ drawn independently from some (unknown) distribution $p_{\text{data}}$.  Have some parameter $\theta$ and a family of distributions $p(\mathbf{x}; \theta)$ s.t. for each concrete value of $\theta$ we get some distribution $p(\mathbf{x})$ which may or may not be related to $p_\text{data}(\mathbf{x})$.  The MLE for $\theta$ is $\theta_{\text{ML}} = \text{argmax}_{\theta} \prod_{i=1}^m p(\mathbf{x}^{(i)}; \theta)$, i.e. the choice of $\theta$ that maximises the likelihood of the observed data&lt;/li&gt;
+&lt;li&gt;More numerically convenient to work with log-likelihood, $\theta_\text{ML} = \text{argmax}_\theta \sum_{i=1}^m \log p(\mathbf{x}^{(i)}; \theta)$.  Equivalently, $\theta_\text{ML} = \text{argmax}_\theta \mathbb{E}_{\mathbf{x} \sim \widehat{p}_{\text{data}}} [\log p(\mathbf{x}; \theta)]$, where $\widehat{p}_\text{data}$ is the empirical distribution coming from our sampling from $p_\text{data}$&lt;/li&gt;
+&lt;li&gt;E.g. suppose I have $m$ samples from a Bernoulli distribution with parameter $\theta$, but I don&amp;rsquo;t know $\theta$ and I want to estimate it instead.  For a particular value of $\theta$, I know that $p(x; \theta) = \theta^{x}(1-\theta)^{1-x}$.  So the thing I&amp;rsquo;m trying to argmax is $\sum_{i=1}^m \log (\theta^{x_m}(1-\theta)^{1-x_m}) = \sum_{i=1}^m x_m \log(\theta) + (1-x_m)\log(1-\theta)$.  The derivative of this is $\sum_{i=1}^m \frac{x_m}{\theta} - \frac{1-x_m}{1-\theta}$ which is extremal when $\sum_{i=1}^m(1-\theta)x_m - (1-x_m)\theta = 0$, i.e. $m\theta_{\text{ML}} = \sum_{i=1}^m x_m$, i.e. at the sample mean.  This can be checked to be a maximum.&lt;/li&gt;
+&lt;li&gt;Equivalent point of view: MLE is the estimate that moves $p(\mathbf{x}; \theta)$ closest to the empirical distribution $\widehat{p}_{\text{data}}$ in the KL sense.  (A short calculation shows that attempting to minimise the KL divergence boils down to maximising the above expectation over the empirical distribution.)&lt;br /&gt;&lt;/li&gt;
+&lt;li&gt;In a supervised setting, can do the same thing with conditional probabilities.  Here $\theta_{\text{ML}} = \text{argmax}_{\theta} \sum_{i=1}^m \log p(\mathbf{y}^{(i)} | \mathbf{x}^{(i)}; \theta)$&lt;/li&gt;
+&lt;li&gt;E.g. linear regression.  Previously we just searched for functions of the form $y = \mathbf{w}^T \mathbf{x}$, and decided to pick $\mathbf{w}$ that minimised the mean square error on the training set.  Now think of the linear regression as outputting a conditional distribution $p(y | \mathbf{x})$ with Gaussian noise, i.e. we define $p(y|\mathbf{x}) = \mathcal{N}(y; \widehat{y}(\mathbf{x}; \mathbf{w}), \sigma^2)$.  A short calculation shows that maximises the log-likelihood of this is equivalent to minimising the the MSE on the training set as before&lt;/li&gt;
+&lt;li&gt;MLE is consistent, under the condition that there is precisely one value of $\theta$ s.t. $p_{\text{data}} = p(.; \theta)$&lt;/li&gt;
+&lt;li&gt;Consistency says nothing about the rate of convergence.  That is measured by statistical efficiency, which is quantified for parameter estimates by the MSE (over the data-generating distribution) between the estimated and the true parameter.  Cramer&amp;ndash;Rao says that the MLE has the lowest MSE amongst all consistent estimators, so in this sense MLE is the asymptotically best estimator&lt;/li&gt;
+&lt;li&gt;In practice, with small amounts of training data, maybe use regularization strategies to get biased versions of MLE which have lower variance&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;bayesian-statistics&#34;&gt;Bayesian Statistics&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Frequentist approach: true value of $\theta$ is fixed but unknown, the point estimate $\widehat{\theta}$ is a random variable (since it is a function of the dataset, which is regarded as random)&lt;/li&gt;
+&lt;li&gt;Bayesian approach: dataset is directly observed (so not random), and $\theta$ is unknown &lt;em&gt;and uncertain&lt;/em&gt; so $\theta$ itself is a random variable&lt;/li&gt;
+&lt;li&gt;Before observing data, represent our knowledge of $\theta$ by specifying a prior distribution $p(\theta)$.  Initially it can just be some distribution with high entropy, e.g. uniformly distributed in some range, or Gaussian&lt;/li&gt;
+&lt;li&gt;Given data $x^{(1)},&amp;hellip;,x^{(m)}$, we have the posterior distribution $p(\theta|x^{(1)},&amp;hellip;,x^{(m)}) = \frac{p(x^{(1)},&amp;hellip;,x^{(m)}|\theta)p(\theta)}{p(x^{(1)},&amp;hellip;,x^{(m)})}$&lt;/li&gt;
+&lt;li&gt;E.g. Bayesian linear regression:
+
+&lt;ul&gt;
+&lt;li&gt;In standard linear regression, you have $\widehat{\mathbf{y}} = \mathbf{X}\mathbf{w}$, where $\mathbf{X}$ is the whole training set.&lt;br /&gt;&lt;/li&gt;
+&lt;li&gt;First we found optimal $\mathbf{w}$ by minimising the MSE.&lt;br /&gt;&lt;/li&gt;
+&lt;li&gt;Then we redid it by assuming $p(y|\mathbf{x})$ was Gaussian (say with $\sigma^2=1$, standard apparently) and using the MLE for $\mathbf{w}$.  This recovered the same value as MSE.&lt;/li&gt;
+&lt;li&gt;For Bayesian, we still work with $p(\mathbf{y}|\mathbf{X}, \mathbf{w}) = \mathcal{N}(\mathbf{y}|\mathbf{X}\mathbf{w}; \mathbf{I})$.  We choose a prior $p(\mathbf{w}) = \mathcal{N}(\mathbf{w}; \mathbf{\mu}_0, \mathbf{\Lambda}_0)$.  Computing the posterior distribution $p(\mathbf{w}|\mathbf{X},\mathbf{y})$, turns out to be Gaussian again, with the mean and covariance matrix a function of both the priors and the data (i.e. Gaussian family is &lt;em&gt;self conjugate&lt;/em&gt;)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;In the Bayesian approach, you can make predictions using the whole posterior distribution of $\theta$.  If it&amp;rsquo;s computationally intractible, though, you might want a point estimate of $\theta$ anyway to use for your predictions.  This estimate will obviously take your prior into account, unlike a purely frequentist approach&lt;/li&gt;
+&lt;li&gt;This is where MAP estimates come in, $\theta_{\text{MAP}} = \text{argmax}_{\theta} p(\theta | \mathbf{x}) = \text{argmax}_{\theta} \left(\log(p(x|\theta)) + \log(p(\theta))\right)$.  This is MLE with regularisation&lt;/li&gt;
+&lt;li&gt;E.g. Bayesian linear regression with $\mathcal{N}(\mathbf{w}; 0, \frac{1}{\lambda}\mathbf{I})$ prior.  The log prior term then corresponds to weight decay&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;supervised-learning-algorithms&#34;&gt;Supervised Learning Algorithms&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Logisitic regression: force a linear function $\mathbf{x} \mapsto \mathbf{\theta}^T \mathbf{x}$ to take values in $(0,1)$ by composing with the logistic sigmoid $\sigma(x) = 1/(1+e^{-x})$, and interpret the result as a probability.  Now you can use a linear function to do classification: $p(y=1|\mathbf{x},\mathbf{\theta}) = \sigma(\mathbf{\theta}^T\mathbf{x})$.  No closed form solution for the optimal weights, instead search using gradient descent&lt;/li&gt;
+&lt;li&gt;Support vector machines:
+
+&lt;ul&gt;
+&lt;li&gt;Have $f(\mathbf{x}) = b + \sum_i \alpha_i k(\phi(\mathbf{x}), \phi(\mathbf{x}^{(i)}))$, where $\phi$ is some feature mapping and $k$ is some kernel.  Simplest case would be $\phi$ is the identity and $k$ is the dot product, but probably we&amp;rsquo;re thinking of $\phi$ mapping in to some infinite-dimensional space&lt;/li&gt;
+&lt;li&gt;Most commonly used kernel is the Gaussian kernel, $k(\mathbf{u}, \mathbf{v}) = \mathcal{N}(\mathbf{u}-\mathbf{v}; 0, \sigma^2 \mathbf{I})$, corresponds to a dot-product in an infinite dimensional space&lt;/li&gt;
+&lt;li&gt;Think of Gaussian kernel as performing template matching.  Training example $(\mathbf{x}, y)$ becomes a template for class $y$.  When $\mathbf{x}&amp;lsquo;$ is near $\mathbf{x}$ in the Euclidean sense, the Gaussian kernel has a large response, so the contribution of $\mathbf{x}$ to the prediction for $\mathbf{x}&amp;lsquo;$ will be large (the corresponding $\alpha$ will count a lot).  We combine those for all training examples $\mathbf{x}$ to get our final prediction for $\mathbf{x}&amp;lsquo;$&lt;/li&gt;
+&lt;li&gt;Generally, algorithms that look like this are called &lt;em&gt;kernel machines&lt;/em&gt; or &lt;em&gt;kernel methods&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;Since $f(\mathbf{x})$ involves each $\alpha_i k(\mathbf{x}, \mathbf{x}^{(i)})$ this could be very expensive to evaluate (involves computing the kernel once for each training sample).  In SVMs, most the of the $\alpha_i$ are zero, so it&amp;rsquo;s not so bad.  Those $\alpha_i$ that are non-zero are called &lt;em&gt;support vectors&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;History note: current deep learning renaissance &lt;a href=&#34;https://www.cs.toronto.edu/~hinton/absps/fastnc.pdf&#34;&gt;began&lt;/a&gt; when a neural network was shown to outperform the radial basis function kernel SVM on MNIST&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;$k$-nearest-neighbours (kNN) is sort of a supervised learning algorithm.  But there&amp;rsquo;s not really much learning, it&amp;rsquo;s really just a function of the training data (given the thing you&amp;rsquo;re predicting, find the $k$ nearest neighbours and average their votes)
+
+&lt;ul&gt;
+&lt;li&gt;This is a non-parametric learning algorithm, so it has a very high capacity.  So (at a high computational cost) it can obtain a high accuracy on a large training set.  It might generalize badly from a small training set (overfitting)&lt;/li&gt;
+&lt;li&gt;Disadvantage of naive kNN is that it treats all features equally, so if you had 100 features but only the first one actually mattered for the prediction, kNN wouldn&amp;rsquo;t know that.  Of course you could alter the &amp;ldquo;nearest&amp;rdquo; metric to emphasise the first component, but I guess if you already knew that the first one was the only one that mattered you wouldn&amp;rsquo;t be training a model with all 100 features&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Decision trees, divide space into subregions, subregions are in bijection with leaf nodes.
+
+&lt;ul&gt;
+&lt;li&gt;Use specific algorithms to learn the tree, don&amp;rsquo;t really care about any of that in this book&lt;/li&gt;
+&lt;li&gt;Standard setup has axis aligned splits (e.g. $x_2 &amp;gt; 5$), so will struggle to approximate conditions like $x_2 &amp;gt; x_1$&lt;/li&gt;
+&lt;li&gt;Seems pretty down on decision trees :)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;unsupervised-learning-algorithms&#34;&gt;Unsupervised Learning Algorithms&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Line between supervised and unsupervised is blurry - subjective to say whether a value is a feature or is provided by a supervisor&lt;/li&gt;
+&lt;li&gt;In practice unsupervised normally means working with data that has not been manually annotated by a human.  Normally involves density estimation, learning to draw samples from a distribution, learning to denoise data from a distribution, finding a manifold that data lies near/on, or clustering the data&lt;/li&gt;
+&lt;li&gt;Classic unsupervised learning problem is finding a lower-dimensional representation of the data.  Or a sparse representation.  Or an independent representation (i.e. aim for representation where features are statistically independent)&lt;/li&gt;
+&lt;li&gt;Principle Component Analysis (PCA):
+
+&lt;ul&gt;
+&lt;li&gt;PCA provides a means of compressing data.  Can also view as an unsupervised learning algorithm learning a representation of the data, specifically a lower-dimensional representation whose dimensions have no linear correlation with each other&lt;/li&gt;
+&lt;li&gt;Recap of algorithm: have points $\mathbf{x} \in \mathbf{R}^n$, want lower dimensional representations $\mathbf{z} \in \mathbf{R}^l$.  Consider linear transformations $D:\mathbf{R}^l \to \mathbf{R}^n$ s.t. the columns of $D$ are orthonormal, i.e. $D$ is the decoding function.  The encoding function is just $\mathbf{x} \mapsto D^{\intercal} \mathbf{x}$, it can be checked this function minimises the distance between a given point $\mathbf{x}$ and its reconstruction.  $D$ is chosen by minimising the cumulative distance between &lt;em&gt;all&lt;/em&gt; points and their reconstruction.  After a fair amount of maths we find that $D$ is matrix whose columns are the $l$ eigenvectors of $\mathbf{X}^{\intercal} \mathbf{X}$ corresponding to the largest eigenvalues&lt;/li&gt;
+&lt;li&gt;How does PCA decorrelate the input $\mathbf{X}$?
+
+&lt;ul&gt;
+&lt;li&gt;WLOG assume the data has mean zero, $m$ samples of dimension $n$.  The unbiased sample covariance is $\text{Var}(\mathbf{x}) = \frac{1}{m-1}\mathbf{X}^T \mathbf{X}$.  PCA finds a representation $\mathbf{z} = \mathbf{W}^T \mathbf{x}$ where $\text{Var}(\mathbf{z})$ is diagonal&lt;/li&gt;
+&lt;li&gt;Basically, we find a rotation $\mathbf{W}$ of input space that aligns the principle axes of variance with the basis of the rotated input space&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;$k$-means clusters:
+
+&lt;ul&gt;
+&lt;li&gt;Divides the training set in to $k$ different clusters of examples that are near each other, so it&amp;rsquo;s like a $k$-dimensional one-hot coding of the input space ($h_i(\mathbf{x})=1$ iff $\mathbf{x}$ in the $i$th cluster)&lt;/li&gt;
+&lt;li&gt;$k$-means algorithm starts with $k$ centroids $\mathbf{\mu}^{(1)}, &amp;hellip;, \mathbf{\mu}^{(k)}$ chosen somewhat arbitrarily (probably make them evenly spread in some sense).  Then alternate steps A and B, where step A assigns each datapoint to its nearest centroid, then step B is to replace each centroid with the mean of all datapoints currently assigned to it.  Do this until it seems to be converging&lt;/li&gt;
+&lt;li&gt;Easy to come up with mathematical measures of how good a clustering is, hard to say if the clusterings represent anything useful in the real world&lt;/li&gt;
+&lt;li&gt;Shortcoming of this one-hot approach: think of clustering red cars, blue cars, red trucks, blue trucks.  Any one-hot coding is going to be unsatisfactory, so can be useful to have sparse representations that are not one-hot&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;stochastic-gradient-descent&#34;&gt;Stochastic Gradient Descent&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Cost function used by a ML algorithm often decomposes as a sum over training examples of a per-example loss function, e.g. conditional log-likelihood $J(\theta) = \frac{1}{m} \sum_{i=1}^m L(\mathbf{x}^{(i)}, y^{(i)}, \theta)$, where $L(\mathbf{x}, y, \theta) = -\log(p(y|\mathbf{x}, \theta))$&lt;/li&gt;
+&lt;li&gt;To minimise this, we need to compute the gradient $\nabla_{\theta} J(\theta) = \frac{1}{m} \sum_{i=1}^m \nabla_{\theta} L(\mathbf{x}^{(i)}, y^{(i)}, \theta)$, which is going to be expensive if you have a large training set&lt;/li&gt;
+&lt;li&gt;From the above form, the gradient is an expectation, so you can approximate it by sampling.  At each step, sample a &lt;em&gt;minibatch&lt;/em&gt; $\mathbb{B} = (\mathbf{x}^{(1)}, &amp;hellip;, \mathbf{x}^{(m&amp;rsquo;)})$ where $m&amp;rsquo;$ is small (say, between 1 and 100).  Approximate the gradient by computing with these samples only, then walk downhill in the direction your approximation suggested&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;building-a-machine-learning-algorithm&#34;&gt;Building a Machine Learning Algorithm&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ML algorithms typically involve a dataset, a cost function, an optimization procedure, and a model&lt;/li&gt;
+&lt;li&gt;Can tweak cost function and optimization procedure to get new algorithms, e.g. add weight decay to cost function in linear regression&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;challenges-motivating-deep-learning&#34;&gt;Challenges Motivating Deep Learning&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Development of DL motivated by failure of traditional algorithms on speech recognition and object recognition&lt;/li&gt;
+&lt;li&gt;Curse of dimensionality: many problems become difficult when number of dimensions is high
+
+&lt;ul&gt;
+&lt;li&gt;Need lots of data to get a reasonable covering of possibly values of $\mathbf{x}$&lt;/li&gt;
+&lt;li&gt;But lots of data means lots of computation&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;We&amp;rsquo;ve talked about priors formally in terms of prior distribution $p(\theta)$.  More generally, though, prioirs are any prior assumptions that affect the output model, e.g. choice of model family is itself a prior.  Generally these are hard to quantify with probability&lt;/li&gt;
+&lt;li&gt;E.g. &lt;em&gt;smoothness prior&lt;/em&gt;: we assume that the functions we learn should be smooth / locally constant.  This is implicit in many simpler algorithms (kNN, kernel methods, decision trees)
+
+&lt;ul&gt;
+&lt;li&gt;Smoothness prior pretty much ties you down to a slicing of the input space, where the resulting number of regions is at most the number of trainng samples.  That&amp;rsquo;s somewhat restrictive&lt;/li&gt;
+&lt;li&gt;E.g. how to learn a chessboard?  With local constancy, need a training sample on each square.  (Obviously can preprocess the input space, but the spirit of the question is one where you don&amp;rsquo;t know you&amp;rsquo;re learning a chessboard ahead of time)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;This can be solved, e.g. you can define $O(2^k)$ regions with $O(k)$ samples, so long as you introduce some dependencies between the regions through additional assumptions about the underlying data generating distribution, e.g. for chessboard introduce the assumption that target function is periodic (which is equivalent to preprocessing the input space)
+
+&lt;ul&gt;
+&lt;li&gt;Doing things like specifying that the target function is periodic is a massive assumption to feed in to your model&lt;/li&gt;
+&lt;li&gt;You don&amp;rsquo;t have to feed specific assumptions in like this for DL.  DL itself already makes an assumption that your data is generated by a &lt;em&gt;composition of factors&lt;/em&gt;, so presumably at some layer it should learn the periodicity itself and take that into account for future layers&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ML people use the term &lt;em&gt;manifold&lt;/em&gt; fairly loosely, roughly related to the mathematical one.  One difference is that the dimension of the manifold doesn&amp;rsquo;t have to be constant (e.g. a figure 8 is a &amp;ldquo;manifold&amp;rdquo;, mostly 1D except for one point where it is 2D)&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Manifold learning&lt;/em&gt; assume that most of $\mathbb{R}^n$ consists of invalid inputs, and that interesting inputs only occur along various manifolds embedded inside $\mathbb{R}^n$
+
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;Manifold hypothesis&lt;/em&gt;: the probability distribution over images, text strings, and sounds that occur in real life is highly concentrated.  An image generated by randomly selecting a black or white pixel at each point is probably not going to look like a human face.&lt;br /&gt;
+
+&lt;ul&gt;
+&lt;li&gt;So &amp;ldquo;most of $\mathbb{R}^n$ is invalid input&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;Also need to show that interesting input are on manifolds (rather than just sparse isolated points).  Can imagine this informally, e.g. small perturbations, dimming/brightening an image, rotating, etc.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Would be very useful if the ML algorithm understood these manifolds and could give coordinates on them.  Will apparently explain how to do this by the end of the book&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;chapter-6-deep-feedforward-networks&#34;&gt;Chapter 6 - Deep Feedforward Networks&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;Deep feedforward networks&lt;/em&gt; (DFNs) (or &lt;em&gt;feedforward neural networks&lt;/em&gt;, or &lt;em&gt;multilayer perceptrons&lt;/em&gt;): will fit into standard framework: learn $y = f^*(\mathbf{x})$ by considering a family $f(\mathbf{x}; \mathbf{\theta})$ and learning the $\mathbf{\theta}$ that gives the best approximation&lt;/li&gt;
+&lt;li&gt;They are &lt;em&gt;feedforward&lt;/em&gt; because information flows completely from $\mathbf{x}$ to $y$ - there is no &lt;em&gt;feedback&lt;/em&gt;.  (When there is feedback, this is a recurrent neural network (RNN))&lt;/li&gt;
+&lt;li&gt;Convolutional neural networks (CNNs), popular in object recognition, are a special kind of DFN.  DFNs are also a conceptual stepping stone towards RNNs (which are popular in natural language tasks)&lt;/li&gt;
+&lt;li&gt;Feedforwarded networks have an associated DAG, nodes in the DAG are functions to evaluate and edges represent composition
+
+&lt;ul&gt;
+&lt;li&gt;Have &lt;em&gt;layers&lt;/em&gt;.  First one you encounter when traersing the DAG is the input layer, last one is the output layer.  Layers in the middle are called hidden layers&lt;/li&gt;
+&lt;li&gt;Overall length to the output layer is called the &lt;em&gt;depth&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;Each hidden layer is typically vector valued, the dimensionality of these hidden layers is called the &lt;em&gt;width&lt;/em&gt; of the layer&lt;/li&gt;
+&lt;li&gt;Can think of each layer as a vector-to-vector function, or as composed of a number of &lt;em&gt;units&lt;/em&gt; which are vector-to-scalar functions.  The latter point of view can be pushed in to a rough anology with brains&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Motivation: Consider trying to use a linear model (e.g. linear regression, logistic regression) in a case where there is a non-linear relationship between the input and the target.  Previously we would try to do some preprocessing with a function $\phi$
+
+&lt;ul&gt;
+&lt;li&gt;This could be hand-crafted, but any attempt is going to be very specialized to the problem/domain&lt;/li&gt;
+&lt;li&gt;Could use a very generic feature mapping like the RBF kernel, but this often does not generalize well (this optimises for finding a locally smooth solution, rather than digging in to the problem at hand)&lt;/li&gt;
+&lt;li&gt;In DL you learn $\phi$.  Have $y = f(\mathbf{x};\mathbf{\theta}, \mathbf{w}) = \phi(\mathbf{x};\mathbf{\theta})^T \mathbf{w}$.  Have parameters $\mathbf{\theta}$ used to learn $\phi$ from a family of functions, and $\mathbf{w}$ for the actual linear regression part.  This is a feedforward neural network with one hidden layer.  This makes the optimisation problem harder (no longer convex) but we can use numerical methods&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;learning-xor&#34;&gt;Learning XOR&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The target function is $y = f^*(\mathbf{x})$ where $\mathbf{x}$ is a binary pair and $f^*$ is &lt;code&gt;XOR&lt;/code&gt;.  Our model provides a function $y = f(\mathbf{x}; \theta)$ and our learning algorithm will adopt the parameters to give a good approximation to $f^*$.
+
+&lt;ul&gt;
+&lt;li&gt;There is no statistical generalisation here, we can just try to get a perfect score on the training set $X = ((0,0), (0,1), (1, 0), (1, 1))$&lt;/li&gt;
+&lt;li&gt;To make things simple, we model it as a regression problem with MSE loss function, so $J(\mathbf{\theta}) = \frac{1}{4} \sum_{\mathbf{x} \in X} (f^*(\mathbf{x})-f(\mathbf{x};\mathbf{\theta}))^2$&lt;/li&gt;
+&lt;li&gt;If we choose a linear model $f(\mathbf{x}; \mathbf{w}, b) = \mathbf{x}^T \mathbf{w} + b$ and minimise in the usual way with the normal equations, we end up with $\mathbf{w}=\mathbf{0}$ and $b=\frac{1}{2}$.  Clearly a linear function cannot learn &lt;code&gt;XOR&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Instead we want to transform feature space to a different space where a linear model becomes appropriate.  Introduce a single hidden layer $f^{(1)}(\mathbf{z}; \mathbf{W}, \mathbf{c})$, keep the linear regression output layer $y = f^{(2)}(\mathbf{h}; \mathbf{w}, b)$, so the whole model is $f(\mathbf{x}; \mathbf{W}, \mathbf{c}, \mathbf{w}, b) = f^{(2)}(f^{(1)}(\mathbf{x})))$&lt;/li&gt;
+&lt;li&gt;Clearly $f^{(1)}$ must be non-linear here.  Most neural networks use an affine transformation controlled by learning parameters, followed by a fixed non-linear activation function.  We do that here, with $\mathbf{h} = g(\mathbf{W}^T\mathbf{x}+\mathbf{c})$.  The activation function $g$ is typically chosen to be a function that is applied element-wise (i.e. $h_i = g((\mathbf{W}^t\mathbf{x})_{i} + c_i)$).  The &lt;em&gt;rectified linear unit&lt;/em&gt; (ReLU) $g(z) = \max(0, z)$ is a common choice which we use here&lt;/li&gt;
+&lt;li&gt;The whole thing is now $f(\mathbf{x}; \mathbf{W}, \mathbf{c}, \mathbf{w}, b) = \mathbf{w}^T\max(\mathbf{0}, \mathbf{W}^T\mathbf{x}+\mathbf{c}) + b$.  At this point, can find a solution by inspection.  Of course, we generally wouldn&amp;rsquo;t be able to see a solution immediately, so we would have to do the gradient optimisation algorithm and get some approximation&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;gradient-based-learning&#34;&gt;Gradient-Based Learning&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Biggest difference between feedforward neural networks and previous examples is the non-convexity of the loss function.  This means a numerical gradient method is a must&lt;/li&gt;
+&lt;li&gt;Moreover, size of the training set means that we have to use &lt;em&gt;stochastic&lt;/em&gt; gradient descent.  Stochastic gradient descent doesn&amp;rsquo;t have any guarantees on convergence to minimum&lt;/li&gt;
+&lt;li&gt;Computing the gradient looks like it might be expensive, but we&amp;rsquo;ll cover the &lt;em&gt;backpropagation algorithm&lt;/em&gt; for that&lt;/li&gt;
+&lt;li&gt;Use regularization techniques as well.  E.g. weight decay can be applied pretty much verbatim, there are also other ones we&amp;rsquo;ll cover later&lt;/li&gt;
+&lt;li&gt;Cost function:
+
+&lt;ul&gt;
+&lt;li&gt;In most cases, we have a parametric set-up and can calculate $p(\mathbf{y}|\mathbf{x}, \mathbf{\theta})$, and we can use maximum likelihood
+
+&lt;ul&gt;
+&lt;li&gt;As usual, this is $$J(\mathbf{\theta}) = -\mathbb{E}_{\mathbf{x}, \mathbf{y} \sim \widehat{p}_{\text{data}}} \left(\log p_{\text{model}}(\mathbf{y}|\mathbf{x})\right)$$&lt;/li&gt;
+&lt;li&gt;The exact form depends on $p_\text{model}(\mathbf{y}|\mathbf{x},\theta)$.  If we work with $p_{\text{model}}(y|\mathbf{x},\mathbf{\theta}) = \mathcal{N}(y;f(\mathbf{x},\mathbf{\theta}),\mathbf{I})$ then we get mean squared error cost again&lt;/li&gt;
+&lt;li&gt;Maximum likelihood is good, because you don&amp;rsquo;t have to ad hoc construct a cost function, it just comes out of your model&lt;/li&gt;
+&lt;li&gt;Gradient of cost function must be &amp;ldquo;large and predictable&amp;rdquo; enough.  There is a risk for some of the units in the network to flatten the gradient, and it&amp;rsquo;s difficult to be sure you&amp;rsquo;re optimising correctly if the gradient is flat.  Log likelihoods help as they unflatten by undoing the exponentation in some units.  Authors refer to this flattening as &lt;em&gt;saturation&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;Usually the cross-entropy function in MLE does not actually have a minimum in these cases (think of the exponentials in ReLUs etc.) so some regularisation is needed to stop things getting carried away&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;In some cases, we only need to predict some statistic of $\mathbf{y}$ conditional on $\mathbf{x}$, e.g. have a predictor $f(\mathbf{x}; \mathbf{\theta})$ that we want to use to predict the mean of $\mathbf{y}$
+
+&lt;ul&gt;
+&lt;li&gt;Using calculus of variations, we can find the solution to $f^* = \text{argmin}_f \mathbb{E}_{\mathbf{x}, \mathbf{y} \sim \widehat{p}_\text{data}} (\mathbf{y}-f(\mathbf{x}))^2$ is $f^*(x) = \mathbb{E}_{\mathbf{y} \sim \widehat{p}_{\text{data}}(\mathbf{y}|\mathbf{x})} [\mathbf{y}]$.  To make sense of this, think of having a really large dataset where you have a bunch of different predictions for $\mathbf{x}$; this is saying that your best bet is to predict the mean&lt;/li&gt;
+&lt;li&gt;On the other hand, if we instead minimise the $L^1$ norm (&lt;em&gt;mean absolute error&lt;/em&gt;), we recover a function that predicts the &lt;em&gt;median&lt;/em&gt; value $\mathbf{y}$ for each $\mathbf{x}$&lt;/li&gt;
+&lt;li&gt;These don&amp;rsquo;t give great results apparently, seems to be common to predict the full distribution even if you just want the mean at the end of the day&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Output units:
+
+&lt;ul&gt;
+&lt;li&gt;Choice of output unit is coupled to cost function, e.g. if you&amp;rsquo;re using cross-entropy then the output units determine the form of the cross-entropy function&lt;/li&gt;
+&lt;li&gt;Assume hidden layers give $\mathbf{h} = f(\mathbf{x}; \mathbf{\theta})$&lt;/li&gt;
+&lt;li&gt;For a linear output, can use a linear unit $\widehat{\mathbf{y}} = \mathbf{W}^{\intercal}\mathbf{h}+\mathbf{b}$
+
+&lt;ul&gt;
+&lt;li&gt;Typically assume Gaussian noise as well, $p(\mathbf{y}|\mathbf{x}) = \mathcal{N}(\mathbf{y};\widehat{\mathbf{y}},\mathbf{I})$, and then we&amp;rsquo;re back in the familiar maximise log-likelihood / minimise MSE situation&lt;/li&gt;
+&lt;li&gt;Could also try to learn the covariance matrix, but since it has to remain positive definite the optimisation is a bit more tricky.  We&amp;rsquo;ll see other units used to parametrise covariance&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Suppose you had binary output instead.
+
+&lt;ul&gt;
+&lt;li&gt;MLE approach would be to define a Bernoulli distribution for $\mathbf{y}$ conditional on $\mathbf{x}$, then you just have to find the most likely value of $P(y=1|\mathbf{x})$.  Because it&amp;rsquo;s simpler to work with logs, we instead find the most likely value of the logarithm.  We work with an unnormalized version $\tilde{P}$ of $P$ (can normalise later), so must find the most likely value of $\log \tilde{P}(y=1|\mathbf{x})$&lt;/li&gt;
+&lt;li&gt;We have $z = \mathbf{w}^T\mathbf{h}+b$, and we assume that the probability takes the form $\log \tilde{P}(y|\mathbf{x}) = yz$.  Then easy to show that $P(y|\mathbf{x}) = \sigma((2y-1)z)$, where $\sigma(x) = 1/(1+e^{-x})$&lt;/li&gt;
+&lt;li&gt;This sort of thing is quite common in ML.  The variables fed in to these logistic functions ($z$ here) are called &lt;em&gt;logits&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;Loss function is $J(\mathbf{\theta}) = - \log P(y|\mathbf{x}) = \zeta((1-2y)z)$, where $\zeta(x) = \log(1+\exp(x))$ is the softplus function.  This doesn&amp;rsquo;t saturate during gradient-based optimisation, unlike what comes out in direct MSE (where you are working directly with $\sigma$)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Now suppose you had a multinoulli output
+
+&lt;ul&gt;
+&lt;li&gt;Need to produce $\mathbf{\widehat{y}}$, with $\widehat{y}_i = P(y=i|\mathbf{x})$.  We have a linear layer predicting $\mathbf{z} = \mathbf{W}^{\intercal}\mathbf{h}+\mathbf{b}$, and we interpret these as unnormalized log probabilities $z_i = \log \tilde{P}(y=i|\mathbf{x})$&lt;/li&gt;
+&lt;li&gt;Then apply the softmax function $\text{softmax}(\mathbf{z})_i = \frac{\exp(z_i)}{\sum_j \exp(z_j)}$&lt;/li&gt;
+&lt;li&gt;This leads to log-likelihood $\log \text{softmax}(\mathbf{z})_i = z_i - \log \sum_j \exp(z_j)$.  The second term is roughly the max of the $z_k$, so when we are tweaking the $z_i$ to maximise the log likelihood, we are pushing $z_i$ up and pushing the most loudest incorrect prediction $z_k$ down&lt;/li&gt;
+&lt;li&gt;Similar point about log-likelihood working well, but any objective function which does not use a $\log$ to undo the $\exp$ in the softmax will not work well&lt;/li&gt;
+&lt;li&gt;Softmax itself can also be translated to make it more numerically stable $\text{softmax}(\mathbf{z}) = \text{softmax}(\mathbf{z}-\text{max}_i(z_i))$&lt;/li&gt;
+&lt;li&gt;Softmax is a misleading name, it&amp;rsquo;s more of a softargmax, i.e. it&amp;rsquo;s a soft version of something that picks the &lt;em&gt;index&lt;/em&gt; which maximises, it does not pick the maxiumum &lt;em&gt;value&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;In general, we can view the hidden layers of the neural network as outputting $\mathbf{\omega} = f(\mathbf{x}; \theta)$, and we regard this as the parameters for the distribution at our output layer.  Then we have $p(y|\mathbf{\omega})$, and MLE says we should use $-\log p(y|\mathbf{\omega}(\mathbf{x}))$ as our cost function
+
+&lt;ul&gt;
+&lt;li&gt;Consider learning variance of $\mathbf{y}$ given $\mathbf{x}$.  This is easy if $\sigma^2$ is constant (indeed, the MLE is just the empirical variance),  But if we don&amp;rsquo;t make that assumption, we can just say that variance of $\mathbf{y}$ is something controlled by $\mathbf{\omega} = f(\mathbf{x};\mathbf{\theta})$.&lt;/li&gt;
+&lt;li&gt;If $\sigma$ does not depend on $\mathbf{x}$ (homoscedastic case), we can just include $\sigma$ as an additional term in $\mathbf{\omega}$, nothing to do with the previous layers going on&lt;/li&gt;
+&lt;li&gt;If $\sigma$ does depend on $\mathbf{x}$ (heteroscedastic case), then $\sigma$ is actually output by the hidden layers&lt;/li&gt;
+&lt;li&gt;When actually learning $\sigma$, it&amp;rsquo;s probably helpful to rephrase it in terms of learning the precision matrix instead&lt;/li&gt;
+&lt;li&gt;We have a constraint that covariance (or precision) matrix be positive definite.  If we assume it&amp;rsquo;s diagonal, then we just need the diagonal entries to be positive, which we can ensure by inserting a softplus function.  Non-diagonal covariance matrices are rare.  (Presumably you have tried to decorrelate features before starting any of this, but maybe this is more complicated in the heteroscedastic case?)&lt;/li&gt;
+&lt;li&gt;For multimodel regression (predict real values from a multimodal $p(\mathbf{y}|\mathbf{x})$), popular to use Gaussian mixtures for the output, $p(\mathbf{y}|\mathbf{x}) = \sum_{i=1}^n p(c=i|\mathbf{x}) \mathcal{N}(\mathbf{y}; \mathbf{\mu}^{(i)}(\mathbf{x}), \mathbf{\Sigma}^{(i)}(\mathbf{x}))$.  A neural network with Gaussian mixture output is called a &lt;em&gt;mixture density network&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;There is a bunch of stuff to learn here: a multinoulli distribution $p(c|\mathbf{x})$, a matrix of means, and a tensor of covariances (3D in theory, though only a 2D tensor if you impose diagonality).  Learning the latter two is complicated by having to consider which Gaussian your sample came from&lt;/li&gt;
+&lt;li&gt;Potential for numerical instability, &lt;em&gt;clip gradients&lt;/em&gt; might help&lt;/li&gt;
+&lt;li&gt;Gaussian mixture models are effective in e.g. generative models of speech&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;hidden-units&#34;&gt;Hidden Units&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Hidden units are often not differentiable at a small number of points.  Inherent numerical approximation, the isolatedness, and the fact that they usuall have a left and right derivative means that this isn&amp;rsquo;t really a problem when working with the gradient&lt;/li&gt;
+&lt;li&gt;Use the general notation: hidden units take input $\mathbf{x}$, compute affine tranformations $\mathbf{z} = \mathbf{W}^T\mathbf{x} + \mathbf{v}$, and then apply some non-linear function elementwise to $\mathbf{z}$&lt;/li&gt;
+&lt;li&gt;ReLU use the activation function $g(z) = \max(0, z)$.  One drawback is they cannot learn (via gradient-based methdos) on examples for which their activation is zero
+
+&lt;ul&gt;
+&lt;li&gt;Generalize to $g(z, \mathbf{\alpha})_i = \max(0, z_i) + \alpha_i \min(0, z_i)$ to capture some this stuff&lt;/li&gt;
+&lt;li&gt;Setting $\alpha_i = -1$ gives &lt;em&gt;absolute value retification&lt;/em&gt;.  This is used in object recognition, where you want to reflect (lol) invariance to polarity reversal&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Leaky ReLU&lt;/em&gt; sets $\alpha_i = 0.01$ or something else small&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Pamarametric ReLU&lt;/em&gt; learns $\mathbf{\alpha}$&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Maxout units&lt;/em&gt; are another generalisation, $g(z)_i = \max_{j \in \mathbb{G}^{(i)}} z_j$, where $\mathbb{G}^{(i)}$ is the $i$th block when we split all the indices into blocks of $k$.  There&amp;rsquo;s a fairly long discussion about this but I think it&amp;rsquo;s just because the author invented them :)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Can use either the logistic sigmoid $g(z) = \sigma(z)$ or the hyperbolic tangent $g(z) = \tanh(z)$ as activation functions.  (Note $\tanh(z) = 2\sigma(2z)-1$).
+
+&lt;ul&gt;
+&lt;li&gt;Sigmoid units are probably not a good idea as a hidden unit.  The gradient saturates away from zero quite dramatically, and the only way we got away with using them as output layers was by using a log-likelihood cost function to undo the exponentiation&lt;/li&gt;
+&lt;li&gt;If you do want to use something like this as a hidden layer, $\tanh$ is better as it satisfies $\tanh(0)=0$ and generally looks a bit like the identity near $0$, so jamming it on top of a linear transformation doesn&amp;rsquo;t do any weird translation&lt;/li&gt;
+&lt;li&gt;Sigmoidal activation functions are more useful in recurrent neural networks for giving feedback, guess we&amp;rsquo;ll see some of that later&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;There is a lot of flexibility in the hidden units you choose.  E.g. they did an experiment training a feedforward network on MNIST with $\cos$ and got error rate less than one percent&lt;/li&gt;
+&lt;li&gt;Quote: &amp;ldquo;new hidden unit types that perform roughly comparably to known types are so common as to be uninteresting&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;Some examples anyway:
+
+&lt;ul&gt;
+&lt;li&gt;Can just use the identity function.  Having a purely linear layer feed in to the next layer vs. just having one layer is basically having a matrix that factors vs. allowing general matrices.  Factorisation saves on parameters and often the factorisability assumption is reasonable&lt;/li&gt;
+&lt;li&gt;Softmax units can be used as hidden units as well.  These act as a switch and apparently are used in memory networks&lt;/li&gt;
+&lt;li&gt;Radial basis function: $h_i = \exp(-\frac{1}{\sigma_i^2} (\mathbf{W}_{\cdot, i} - \mathbf{x})^2)$.  Becomes active as $\mathbf{x}$ approaches the template $\mathbf{W}_{\cdot, i}$.  Difficult to optimize as it saturates to zero away from the template&lt;/li&gt;
+&lt;li&gt;Softplus: $g(a) = \zeta(a) = \log(1 + e^{a})$.  This is similar to ReLU, but smooth.  It has been proven to perform worse than ReLU, though, so might as well just use ReLU&lt;/li&gt;
+&lt;li&gt;Hard tanh: $g(a) = \max(-1, \min(1, a))$.  This is shaped similary to $\tanh$ and the ReLU, but it is bounded&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;architecture-design&#34;&gt;Architecture Design&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Basic architectural decisions are: depth of the network?  width of each layer?  activation functions at each layer?&lt;/li&gt;
+&lt;li&gt;Universal approximation theorem: a feedforward network with a linear output layer and at least one hidden layer with any &amp;ldquo;squashing&amp;rdquo; activation function (e.g. logistic sigmoid) can approximate (to given accuracy $\epsilon&amp;gt;0$) any measurable function $\mathbb{R}^m \to \mathbb{R}^n$ (any $m$ and $n$), provided the network is given enough hidden units.  Can also approximate its derivative.  Can also approximate functions between finite dimensional discrete spaces&lt;/li&gt;
+&lt;li&gt;This says that there exists a network that is good, it does not mean that your chosen algorithm will be able to &lt;em&gt;learn&lt;/em&gt; a network that is good&lt;/li&gt;
+&lt;li&gt;Also it doesn&amp;rsquo;t say how large the network has to be.  There are some bounds on the size of the approximating networks for specific classes of functions, but the bounds are very large&lt;/li&gt;
+&lt;li&gt;Interesting trade-off between depth of the network and width of the layers.  Technically you only need depth one to approximate well, but author seems to be saying that if you choose depth smaller than some $d$ (depending on the function you&amp;rsquo;re approximating), then you need a number of units exponential in the number of features (i.e., few very wide layers).  If you choose depth larger than $d$, you need a smaller number of hidden units overall.  Refers to lots of research here&lt;/li&gt;
+&lt;li&gt;Also refers to lots of research showing the deep neural networks just seem to be empirically better&lt;/li&gt;
+&lt;li&gt;Most convincing theoretical argument is: you justify the depth by saying that you&amp;rsquo;re making the prior assumption that you&amp;rsquo;re trying to model something which is a composition of many different stages&lt;/li&gt;
+&lt;li&gt;What kind of neural network (CNN?  RNN?) is also an architecture choice&lt;/li&gt;
+&lt;li&gt;Don&amp;rsquo;t necessarily have to connect the layers in a chain&lt;/li&gt;
+&lt;li&gt;Don&amp;rsquo;t necessarily have to have a all units in one layer connected to all units in another layer, e.g. CNNs have a specific pattern of sparse connections between layers&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;backpropagation-and-other-differentiation-algorithms&#34;&gt;Backpropagation and Other Differentiation Algorithms&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Giving an analytical expression for the gradient is straightforward, but actually computing it is expensive.  Backpropagation gives a cheaper was to evaluate the gradient numerically&lt;/li&gt;
+&lt;li&gt;Backpropagation only refers to how to compute the gradient, to get a learning algorithm on top of that you will need some gradient-based optimisation, like stochastic gradient descent&lt;/li&gt;
+&lt;li&gt;Fairly general, can compute $\nabla_\mathbf{x} f(\mathbf{x}, \mathbf{y})$ for an arbitrary function $f$, where $\mathbf{x}$ is a set of variables that we want to differentiate along, and $\mathbf{y}$ are additional variables that we don&amp;rsquo;t care about differentiating along&lt;/li&gt;
+&lt;li&gt;Talk about neural networks in terms of computation graphs:
+
+&lt;ul&gt;
+&lt;li&gt;A node in the graph represents a variable (could be scalar, vector, matrix, tensor, &amp;hellip;)&lt;/li&gt;
+&lt;li&gt;Have &lt;em&gt;operations&lt;/em&gt; which (WLOG) output a single variable (which, as above, could be a vector)&lt;/li&gt;
+&lt;li&gt;If $y$ is obtained by applying an operation to $x$, draw a directed edge from $x$ to $y$ (possibly annotating to say what the operation actually was)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Chain rule for vector-valued functions: if $\mathbf{x} \in \mathbb{R}^m$, $\mathbf{y} = g(\mathbf{x}) \in \mathbb{R}^n$, and $z = f(\mathbf{y})$, then $\nabla_\mathbf{x} z = \left(\frac{\partial \mathbf{y}}{\partial \mathbf{x}} \right)^T \nabla_\mathbf{y} z$.  I.e., the gradient wrt $\mathbf{x}$ can be obtained by multiplying a Jacobian by the gradient wrt $\mathbf{y}$&lt;/li&gt;
+&lt;li&gt;Let $\mathbf{X}$ be a tensor, and write $\nabla_\mathbf{X} z = (\nabla_\mathbf{X} z)_i$ for the tensor gradient, where $i$ is now a multi-index&lt;/li&gt;
+&lt;li&gt;Chain rule for tensor-valued functions: $\nabla_\mathbf{X} z = \sum_j (\nabla_\mathbf{X} \mathbf{Y}_j) \frac{\partial z}{\partial \mathbf{Y}_j}$.  Here the variable $j$ will be range over all the ways you can index into $\mathbf{Y}$&lt;/li&gt;
+&lt;li&gt;This gives us the way to write down an algebraic expression for the gradient of a scalar wrt any node (=variable) in the computational graph, but it is expensive to evaluate&lt;/li&gt;
+&lt;li&gt;Can imagine that chained rule for multiply composed functions leads to lots of repeated terms - need to decide whether to recompute (costs CPU) or store (costs memory)&lt;/li&gt;
+&lt;li&gt;Given output scalar $u^{(n)}$, want to compute its derivative with wrt input nodes $u^{(1)},&amp;hellip;,u^{(n_i)}$.  Also have remaining nodes $u^{(n_i+1)},&amp;hellip;,u^{(n)}$.  Assume they&amp;rsquo;re ordered in the obvious way.&lt;/li&gt;
+&lt;li&gt;Forward computation algorithm:
+
+&lt;ul&gt;
+&lt;li&gt;Put your input values $(x_1,&amp;hellip;,x_{n_i})$ into the nodes $u^{(1)},&amp;hellip;,u^{(n_i)}$.&lt;/li&gt;
+&lt;li&gt;Then for $n = n_{i+1}, &amp;hellip;, n$, set $\mathbb{A}^{(i)}$ to be the set of $u^{(j)}$ s.t. $j \in \text{Pa}(u^{(i)})$, then calculate $u^{(i)} = f^{(i)}(\mathbb{A}^{(i)})$.  This notation is bad, but it&amp;rsquo;s just trying to distinguish between a node and the value output from it&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Back propagation, simple case:
+
+&lt;ul&gt;
+&lt;li&gt;Assume all variables scalars, want to compute derivative of $u^{(n)}$ wrt $u^{(1)},&amp;hellip;,u^{(n_i)}$.&lt;/li&gt;
+&lt;li&gt;Run forward propogation to compute the activations&lt;/li&gt;
+&lt;li&gt;Initialise $\text{gradtable}$, we will set $\text{gradtable}(u^{(i)})$ equal to the compute value of $\frac{\partial u^{(n)}}{\partial u^{(i)}}$&lt;/li&gt;
+&lt;li&gt;First set $\text{gradtable}(u^{(n)}) = 1$&lt;/li&gt;
+&lt;li&gt;Then for $j=n-1,&amp;hellip;,1$, compute $\frac{\partial u^{(n)}}{\partial u^{(j)}} = \sum_{i \text{ s.t. } j \in \text{Pa}(u^{(i)})} \frac{\partial u^{(n)}}{\partial u^{(i)}} \frac{\partial u^{(i)}}{\partial u^{(j)}} = \sum_i \text{gradtable}(u^{(i)}) \frac{\partial u^{(i)}}{\partial u^{(j)}}$&lt;/li&gt;
+&lt;li&gt;When done, return the grad table&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Forward propagation for a typical deep neural network (minibatch size one):
+
+&lt;ul&gt;
+&lt;li&gt;Have network of depth $l$, $W^{(1)},&amp;hellip;,W^{(l)}$ the weights, $b^{(1)},&amp;hellip;,b^{(l)}$ the biases, input $\mathbf{x}$, and target $\mathbf{y}$&lt;/li&gt;
+&lt;li&gt;Initialise $\mathbf{h^{(0)}} = \mathbf{x}$&lt;/li&gt;
+&lt;li&gt;For $k=1,&amp;hellip;,l$, do $\mathbf{a}^{(k)} = \mathbf{b}^{(k)} + \mathbf{W}^{(k)} \mathbf{h}^{(k-1)}$, then $\mathbf{h}^{(k)} = f(\mathbf{a}^{(k)})$&lt;/li&gt;
+&lt;li&gt;Set $\widehat{\mathbf{y}} = \mathbf{h}^{(l)}$ and $J = L(\widehat{\mathbf{y}}, \mathbf{y}) + \lambda \Omega(\theta)$ (i.e. cost = loss + regularization)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Back propagation for a typical deep neural network:
+
+&lt;ul&gt;
+&lt;li&gt;Run the above forward propagation&lt;/li&gt;
+&lt;li&gt;Set $\mathbf{g} = \nabla_\mathbf{\widehat{\mathbf{y}}} J = \nabla_{\widehat{\mathbf{y}}} L(\widehat{\mathbf{y}}, \mathbf{y})$&lt;/li&gt;
+&lt;li&gt;For $k=l,&amp;hellip;1$:
+
+&lt;ul&gt;
+&lt;li&gt;First replace the gradient $\mathbf{g}$ with the derivative of the pre-nonlinearity action $\nabla_{\mathbf{a}^{(k)}} J = \mathbf{g} \cdot f&amp;rsquo;(\mathbf{a}^{(k)})$.&lt;/li&gt;
+&lt;li&gt;Compute the gradient on the weights and biases: $\nabla_{\mathbf{b}^{(k)}} J = \mathbf{g} + \lambda \nabla_{\mathbf{b}^{(k)}} \Omega(\theta)$, $\nabla_{\mathbf{W}^{(k)}} J = \mathbf{g} \mathbf{h}^{(k-1)T} + \lambda \nabla_{\mathbf{W}^{(k)}} \Omega(\theta)$&lt;/li&gt;
+&lt;li&gt;Backpropagate one stage: replace $\mathbf{g}$ with $\nabla_{h^{(k-1)}} = {}^{t}\mathbf{W}^{(k)} \mathbf{g}$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;At the end of the day, we have the gradients of $J$ wrt all the $\mathbf{W}^{(k)}$ and the $\mathbf{b}^{(k)}$, so we can do descent&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;One approach to backpropagation in general is to take a computation graph and a set of numerical inputs to the graph, and return numerical values giving the gradient at those input values.  Call this &lt;em&gt;symbol-to-number differentiation&lt;/em&gt;.  Implementations in Torch and Caffe are like this&lt;/li&gt;
+&lt;li&gt;Alternative is to take the computational graph and add additional nodes explaining how to compute the derivatives.  This is the approach taken by Theano and Tensorflow.  To actually evaluate, you plug your concrete inputs into the new computational graph.  One advantage of this approach is you can now compute second order derivatives by feeding in the first order derivative graph, etc.&lt;/li&gt;
+&lt;li&gt;General set-up:
+
+&lt;ul&gt;
+&lt;li&gt;Each node in the graph corresponds to a tensor $\mathbf{V}$&lt;/li&gt;
+&lt;li&gt;For each operation (edge in the computational graph) $\text{op}$, we have a corresponding $\text{bprop}$, defined as follows:  Take any operation $\text{op}$ with inputs $\text{inputs}$, write $\text{op.f}$ for the corresponding mathematical function.  Let $\mathbf{G}$ be the gradient on the output of our operation, and let $\mathbf{X}$ be any input to the operation that we want to compute the gradient of (i.e., we want to step backwards to).  The corresponding backprop $\text{op.bprop}$ satisfies $\text{op.bprop}(\text{inputs}, \mathbf{X}, \mathcal{G}) = \sum_i (\nabla_\mathbf{X} \text{op.f}(\text{inputs})_i)\mathbf{G}_i$&lt;/li&gt;
+&lt;li&gt;C.f. the chain rule: if $\mathbf{X} \mapsto \mathbf{Y} \mapsto z$, then $\nabla_\mathbf{X} z = \sum_i (\nabla_\mathbf{X} Y_i) \frac{\partial z}{\partial Y_i}$.  So the backprop calculates $\nabla_\mathbf{X} z$, from which we obviously get each $\frac{\partial z}{\partial X_i}$ and hence can recurse&lt;/li&gt;
+&lt;li&gt;Proceeds to write out the algorithm fully but I think it&amp;rsquo;s clear now&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;If the forward graph has $n$ nodes, then the backpropagation is at worst $O(n^2)$ (as it&amp;rsquo;s directed acyclic).  For neural networks, it&amp;rsquo;s going to be $O(n)$ as the graph is a chain.  Of course, the complexity is in terms of number of operations as defined by your graph, if those operations are &amp;ldquo;multiply two very large matrices together&amp;rdquo; then it&amp;rsquo;s still going to be slow&lt;/li&gt;
+&lt;li&gt;TL;DR of backpropagation is &amp;ldquo;use dynamic programming&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;History lesson:
+
+&lt;ul&gt;
+&lt;li&gt;Initially people used neural network models but they were entirely linear (so they were just ways of representing linear models).  There was pushback (from e.g. Minsky) because these are not even capable of learning &lt;code&gt;XOR&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;People added nonlinearity and worked out how to compute the gradient, including using dynamic programming methods, in the 60s and 70s&lt;/li&gt;
+&lt;li&gt;Some good applications and backpropagation meant continued popularity (with people like Hinton and Le Cun getting mentions) until the early 90s
+
+&lt;ul&gt;
+&lt;li&gt;Other ML techniques took over for a while, until neural networks became fashionable again with deep neural networks in 2006.  Mentions larger datasets and better computers as major factors here&lt;/li&gt;
+&lt;li&gt;Algorithmically, mentions replacing MSE with cross-entropy as an improvement.  Also a good amount on how replacing sigmoids with ReLUs improved performance - people preferred sigmoids for a while as they are everywhere differentiable and work pretty well on small networks, but ReLUs on larger networks have shown notable performance improvements&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;chapter-7-regularization-for-deep-learning&#34;&gt;Chapter 7 - Regularization for Deep Learning&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;General statement: we often find that the best fitting model (in the sense of minimising generalisation error) is a large model (e.g. deep neural network) that has been regularised appropriately&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;parameter-norm-penalties&#34;&gt;Parameter Norm Penalties&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Parameter norm penalties: $\tilde{J}(\theta; \mathbf{X}, \mathbf{y}) = J(\theta; \mathbf{X}, \mathbf{y}) + \alpha \Omega(\theta)$ for some $\alpha \geq 0$&lt;/li&gt;
+&lt;li&gt;Typically in DL, $\Omega$ only penalises the weights of the affine transformation, and not the biases (regularising the biases can cause underfitting).  Write $\mathbf{w}$ for the weights, and $\mathbf{\theta}$ for all the parameters (which includes both the weights and the unregularized parameters)&lt;/li&gt;
+&lt;li&gt;Common parameter penalty is L2 norm, variously called weight decay / ridge regression / Tikhonov regularisation&lt;/li&gt;
+&lt;li&gt;Local effects of L2: For simplicity consider the case where there are no biases (so $\theta = \mathbf{w})$):
+
+&lt;ul&gt;
+&lt;li&gt;Then $\tilde{J}(\mathbf{w}; \mathbf{X}, \mathbf{y}) = \frac{\alpha}{2} \mathbf{w}^{\intercal} \mathbf{w} + J(\mathbf{w}; \mathbf{X}, \mathbf{y})$&lt;/li&gt;
+&lt;li&gt;And $\nabla_\mathbf{w} \tilde{J}(\mathbf{w}; \mathbf{X}, \mathbf{y}) = \alpha \mathbf{w} + \nabla_\mathbf{w} J(\mathbf{w}; \mathbf{X}, \mathbf{y})$&lt;/li&gt;
+&lt;li&gt;So we see that gradient descent at rate $\epsilon$ now combines two tasks: lowering the gradient of $J$, and decreasing the weights by a constant multiplicative factor $1-\epsilon \alpha$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Global effects of L2: take a quadratic approximation of the cost function around the point $\mathbf{w}^*$ where $J(\mathbf{w}; \mathbf{X}, \mathbf{y})$ is minimised.  We find the minimum of the appromximation is $\widetilde{\mathbf{w}} = Q(\Lambda + \alpha \mathbf{I})^{-1}\Lambda Q^{\intercal} \mathbf{w}^*$, where $H = Q\Lambda {}^tQ$ diagonalizes the Hessian ($Q$ being orthogonal, as $H$ is real and symmetric).  If $\alpha=0$ this recovers the orginal minimum $\mathbf{w}^*$, but in general it scales the weights down by $\lambda_i/(\lambda_i + \alpha)$ along the eigenvectors of $H$
+
+&lt;ul&gt;
+&lt;li&gt;This makes sense: if an eigenvalue of the Hessian is small, then that means that the gradient does not vary much along the direction of the corrresponding eigenvector.  You want your model to assign a low weight to that direction, otherwise you are overfitting&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Another option is L1 regularisation.  In the simplest no-biases case from above, $\widetilde{J}(\mathbf{w}; \mathbf{X}, \mathbf{y}) = \alpha ||\mathbf{w}||_1 + J(\mathbf{w}; \mathbf{X}, \mathbf{y})$ and $\nabla_\mathbf{w} \widetilde{J}(\mathbf{w}; \mathbf{X} \mathbf{y}) = \alpha \text{sgn}(\mathbf{w}) + \nabla_\mathbf{w} J(\mathbf{w}; \mathbf{X}, \mathbf{y})$
+
+&lt;ul&gt;
+&lt;li&gt;Clearly this is quite different to L2 regularisation: now regularisation only depends on the sign of $w_i$, not the actual size of $w_i$&lt;/li&gt;
+&lt;li&gt;Since the analysis is harder here, further simplify by assuming the Hessian is diagonal (can achieve this by applying PCA to remove all correlation between input features as a preprocessing step)&lt;/li&gt;
+&lt;li&gt;Take a quadratic approximation again.  Still assuming the Hessian is diagonal, we now get $\widehat{J}(\mathbf{w}) = J(\mathbf{w}) + \sum_i \left(\frac{1}{2} H_{i, i} (w_i - w_i^*)^2 + \alpha |w_i|\right)$
+
+&lt;ul&gt;
+&lt;li&gt;This is minimised when $w_i = \text{sgn}(w_i^*) \max\left(|w_i^* - \frac{\alpha}{H_{i,i}}|, 0 \right)$&lt;/li&gt;
+&lt;li&gt;So if $|w_i^*| H_{i,i}$ is small, then we simply replace that weight by zero.  If it is large, we shorten that weight by distance $\frac{\alpha}{H_{i,i}}$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;L1 regularisation therefore moves to a solution that is more &lt;em&gt;sparse&lt;/em&gt;.  This can be used as a &lt;em&gt;feature selection&lt;/em&gt; mechanism, e.g. in LASSO (L1 penalty with least-squares cost function)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;We previously saw that L2 regularisation was equivalent to MAP Bayesian inference with a Gaussian prior on the weights.  For L1 regularisation, there is a MAP perspective where the prior is an isotropic Laplacian distribution&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;norm-penalities-as-constrained-optimization&#34;&gt;Norm Penalities as Constrained Optimization&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Suppose you wanted to impose $\Omega(\theta) \leq k$.  Then you could set up a Lagrangian $\mathcal{L}(\theta, \alpha) = J(\theta) + \alpha(\Omega(\theta)-k)$.  The solution is then $\theta^* = \text{argmin}_\theta \max_{\alpha\geq 0} \mathcal{L}(\theta, \alpha)$&lt;/li&gt;
+&lt;li&gt;From this, if we can find $\alpha^*$ minimising, we get the same form as before.  We could also use a different optimisation algorithm, e.g. do normal stochastic gradient descent then project back to the nearest point satisfying $\Omega(\theta) \leq k$&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;regularization-and-under-constrained-problems&#34;&gt;Regularization and Under-Constrained Problems&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Regularisation is sometimes necessary for the problem to be defined.  E.g. in linear regression and PCA, you need to invert $\mathbf{X}^{\intercal} \mathbf{X}$, which might not be possible.  But if you regularise, you are inverting $\mathbf{X}^{\intercal} \mathbf{X} + \alpha \mathbf{I}$, which will be fine for almost all $\alpha$.  This is basically the idea of the Moore&amp;ndash;Penrose pseudoinverse&lt;/li&gt;
+&lt;li&gt;Another example: logistic regression, where we find $\mathbf{w}$ which gets a perfect score.  Then $2\mathbf{w}$ also gets a perfect score but has higher likelihood.  Regularisation at least stops this pattern continuing at some point&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;dataset-augmentation&#34;&gt;Dataset Augmentation&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Data augmentation can sometimes help reduce generalisation error as well
+
+&lt;ul&gt;
+&lt;li&gt;E.g. in object recognition, augment the data by appyling various translations etc. to the input but keep the class the same, makes the network more robust&lt;/li&gt;
+&lt;li&gt;Similarly injecting noise - neural networks can be sensitive to noise, and one workaround is train them on artificially noised data&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;noise-robustness&#34;&gt;Noise Robustness&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Noise can also be added to the hidden units, will cover this in more details when we look at the dropout algorithm&lt;/li&gt;
+&lt;li&gt;Consider a linear regression problem with training data $(\mathbf{x}_1, y_1),&amp;hellip;,(\mathbf{x}_n, y_n)$ where we are minimising the MSE.  We use a neural network and include a random perturbation $\mathbf{\epsilon}_\mathbf{W} \sim \mathcal{N}(\mathbf{\epsilon}; \mathbf{0}, \eta \mathbf{I})$ of the weights, and write $\mathbf{y}_{\mathbf{\epsilon}_\mathbf{W}}$ for the perturbed model.
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;TODO&lt;/strong&gt; I don&amp;rsquo;t understand this example, maybe reading this &lt;a href=&#34;https://www.google.com/url?sa=t&amp;amp;rct=j&amp;amp;q=&amp;amp;esrc=s&amp;amp;source=web&amp;amp;cd=2&amp;amp;cad=rja&amp;amp;uact=8&amp;amp;ved=2ahUKEwjp6PbXmtfkAhXnRBUIHeQwD7kQFjABegQIBBAC&amp;amp;url=https%3A%2F%2Fpapers.nips.cc%2Fpaper%2F899-simplifying-neural-nets-by-discovering-flat-minima.pdf&amp;amp;usg=AOvVaw2U8yZT7vC8xRDmw4Dn6kWL&#34;&gt;paper&lt;/a&gt; will help&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;The training data probably has mistakes, and if $(\mathbf{x}, y)$ is misclassified then maximising $\log(p(y|\mathbf{x}))$ is harmful.  Adding noise to the labels can help mitigate this, e.g. could say that labels are correct with probability $1-\epsilon$&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Label smoothing&lt;/em&gt; replaces a $k$-output softmax, by replacing the hard 0 and 1 with $\epsilon/(k-1)$ and $1-\epsilon$ respectively.  Direct softmax has convergence problems (softmax itself never actually reaches 0 or 1, so need weight decay to stop it getting carried away during training), but smooth version works better&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;semi-supervised-learning&#34;&gt;Semi-supervised Learning&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;Semi-supervised learning&lt;/em&gt;: use both unlabelled samples from $P(\mathbf{x})$ and labelled examples from $P(\mathbf{x}, \mathbf{y})$ to predict $P(\mathbf{y}|\mathbf{x})$.&lt;/li&gt;
+&lt;li&gt;In DL, semi-supervised learning usually refers to learning a representation $\mathbf{h} = f(\mathbf{x})$, so that samples from the same class have a similar representation (then apply a basic classifier on top of that)&lt;/li&gt;
+&lt;li&gt;Just discussed very briefly here, see &lt;a href=&#34;https://www.google.com/url?sa=t&amp;amp;rct=j&amp;amp;q=&amp;amp;esrc=s&amp;amp;source=web&amp;amp;cd=2&amp;amp;cad=rja&amp;amp;uact=8&amp;amp;ved=2ahUKEwjb0eLrndfkAhWMTcAKHT_jBQsQFjABegQIBhAC&amp;amp;url=http%3A%2F%2Fwww.acad.bg%2Febook%2Fml%2FMITPress-%2520SemiSupervised%2520Learning.pdf&amp;amp;usg=AOvVaw3UO5UovSG0OzG7c8CHQ7Mo&#34;&gt;Chapelle et. al&lt;/a&gt; for more details&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;multitask-learning&#34;&gt;Multitask Learning&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;Multitask learning&lt;/em&gt;: improve generalisation by pooling the examples arising out of several tasks
+
+&lt;ul&gt;
+&lt;li&gt;E.g. Imagine tasks sharing common input $\mathbf{x}$, we might produce a shared representation $\mathbf{h}^{\text{shared}}$, then specialising in to two different hidden layers $\mathbf{h}^{(1)}$ from which we predict $\mathbf{y}^{(1)}$ and $\mathbf{h}^{(2)}$ from which we predict $\mathbf{y}^{(2)}$&lt;/li&gt;
+&lt;li&gt;The prior belief this is expressing is &amp;ldquo;among the factors that explain the variations observed in the data associated with the different tasks, some are shared across two or more tasks&amp;rdquo;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;early-stopping&#34;&gt;Early Stopping&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;When training a model with large representational capacity (i.e., ability to overfit), we often see the training error decreasing steadily (albeit more slowly) as we train longer, but the validation error (and so probably the test error) might start increasing again after a while&lt;/li&gt;
+&lt;li&gt;Better to exit early in this case.  Can use the &lt;em&gt;early stopping&lt;/em&gt; algorithm: keep a copy of the parameters that had the best validation error, and to exit once we have performed $N$ iterations of the training phase without bettering the validation error
+
+&lt;ul&gt;
+&lt;li&gt;Early stopping is nice because it doesn&amp;rsquo;t affect the learning dynamics.  In weight decay, you have to worry about things like whether you have made $\lambda$ to large.  OTOH, early stopping slots in quite nicely to what you&amp;rsquo;re already doing&lt;/li&gt;
+&lt;li&gt;Early stopping can be used in conjunction with other regularisation techniques, of course&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Early stopping requires a training/validation data split.  Once you&amp;rsquo;ve used early stopping to determine the optimal training time, you can feed the validation data back into the training data
+
+&lt;ul&gt;
+&lt;li&gt;One way is to take the new combined data set, and train for as long as early stopping told you to&lt;/li&gt;
+&lt;li&gt;Another way is to stack it on top of the work you did during early stopping - use what you already had, and chuck the validation data in as well.  Keep going for a while until things seem to stop improving.  This avoid retraining but has obvious downsides as well&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Intuitively, early stopping is a regulariser because of the U-shape of the validation error curve.  Stopping at the trough of the U is limiting the distance we travel during gradient descent, so it is a means of regularising our parameters&lt;/li&gt;
+&lt;li&gt;For a simple linear model with quadratic error function and simple gradient descent, early stopping is equivalent to L2 regularisation:
+
+&lt;ul&gt;
+&lt;li&gt;Assume for simplicity the only parameters $\mathbf{\theta}$ are the weights $\mathbf{w}$&lt;/li&gt;
+&lt;li&gt;Take a quadratic approximation $\widehat{J}$ of the cost function $J$ in a neighbourhood of the empirically optimal point $\mathbf{w}^*$, so $\widehat{J}(\mathbf{w}) = J(\mathbf{w}^*) + \frac{1}{2} (\mathbf{w}-\mathbf{w}^*)^{\intercal}H(\mathbf{w}-\mathbf{w}^*)$&lt;/li&gt;
+&lt;li&gt;Then $\nabla_\mathbf{W} \widehat{J}(\mathbf{w}) = H(\mathbf{w}-\mathbf{w}^*)$&lt;/li&gt;
+&lt;li&gt;Write $(\mathbf{w}^{(\tau)})_{\tau \geq 1}$ for the points we step on during gradient descent.  Then it&amp;rsquo;s easy to see that $\mathbf{w}^{(\tau)}-\mathbf{w}^* = (\mathbf{I}-\epsilon H)(\mathbf{w}^{(\tau-1)} - \mathbf{w}^*)$&lt;/li&gt;
+&lt;li&gt;Diagonalising $H = Q\Lambda Q^{\intercal}$ with $Q$ orthonormal, we get $Q^{\intercal} (\mathbf{w}^{\tau} - \mathbf{w}^*) = (\mathbf{I}-\epsilon \Lambda) Q^{\intercal}(\mathbf{w}^{(\tau-1)} - \mathbf{w}^*)$, and hence $Q^{\intercal}w^{(\tau)} = (\mathbf{I} - (\mathbf{I}-\epsilon \Lambda)^\tau) Q^{\intercal} w^* + (\mathbf{I}-\epsilon \Lambda)^\tau \mathbf{w}^{(0)}$&lt;/li&gt;
+&lt;li&gt;Assume $\mathbf{w}^{(0)}=0$ for simplicity, and assume that $\epsilon$ is small enough so that $|1-\epsilon \lambda_i| &amp;lt; 1$, so $Q^{\intercal}\mathbf{w}^{(\tau)} = (\mathbf{I} - (\mathbf{I} - \epsilon \Lambda)^\tau) Q^{\intercal} \mathbf{w}^*$&lt;/li&gt;
+&lt;li&gt;C.f. what we saw in L2 regularization, $\widetilde{\mathbf{w}} = Q(\Lambda + \alpha \mathbf{I})^{-1} \Lambda Q^{\intercal} \mathbf{w}^*$.&lt;/li&gt;
+&lt;li&gt;Matching these up, the rough relation between these parameters is $\tau \approx 1/(\epsilon \alpha)$&lt;/li&gt;
+&lt;li&gt;The big advantage early stopping has over weight decay is that early stopping &lt;em&gt;chooses&lt;/em&gt; $\tau$, so whilst the approaches are roughly equivalent, there&amp;rsquo;s no ad hoc choice of $\alpha$ but rather an algorithm for choosing $\tau$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;parameter-tying-and-parameter-sharing&#34;&gt;Parameter Tying and Parameter Sharing&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Techniques like L2 regularisation and early stopping express a prior about where the parameters should like (near the origin, near where you started, etc.).  In some situations, though, our prior might not be a specific region for where the parameters should live, but instead something like a relationship between weights&lt;/li&gt;
+&lt;li&gt;Can imagine two classifiers with different input distributions and different output classes, but are doing basically the same job so might expect that the two models have similar weight vectors once trained optimally.
+
+&lt;ul&gt;
+&lt;li&gt;One way to express this prior (weights of my two different classifiers are related) is to train one then then regularize the second towards the weights of the first&lt;/li&gt;
+&lt;li&gt;Another way is to literally force sets of parameters to be equal when training, this is &lt;em&gt;parameter sharing&lt;/em&gt;, which saves on some memory at least.  Parameter sharing is widely used in CNNs (will cover later)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;sparse-representations&#34;&gt;Sparse Representations&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;We have already seen how L1 penalisation induces sparse parameterisations, i.e. forces many of the weights to become zero.  In $\mathbf{h&amp;rsquo;} = \mathbf{W}\mathbf{h}$, this is basically making a bunch of entries in $\mathbf{W}$ zero&lt;/li&gt;
+&lt;li&gt;Sparsity can also be induced in the representation, i.e. making a bunch of entries of $\mathbf{h}$ be zero&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Sparse representations&lt;/em&gt; can be achieved in exactly the same way as we got sparse parameterisations: add a penalty (this time for the representation) to the cost function, $\widetilde{J}(\mathbf{\theta}; \mathbf{X}, \mathbf{y}) = J(\mathbf{\theta}; \mathbf{X}, \mathbf{y}) + \alpha \Omega(\mathbf{h})$.  Can use $\Omega$ an L1 penalty similar to before to induce sparsity&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;bagging-and-other-ensemble-methods&#34;&gt;Bagging and Other Ensemble Methods&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Bagging (boostrap aggregating) is a technique for reducing generalisation error by combining several models, by having those models vote on the output for a test example.  This is an example of &lt;em&gt;model averaging&lt;/em&gt;, and fits within &lt;em&gt;ensemble methods&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;Intuition for model averaging: consider training $k$ regression models, and write $\epsilon_i$ for the errors they make.  Assume the errors are mean zero, variance $v$, and have covariance $\mathbb{E}[\epsilon_i \epsilon_j] = c$.  If you average the predictions, then the expected squared error is $\mathbb{E}\left[\left(\frac{1}{k} \sum_i \epsilon\right)^2\right] = \frac{1}{k}(v + (k-1)c)$
+
+&lt;ul&gt;
+&lt;li&gt;If $c=v$ (the errors are perfectly correlated) then the averaging has no effect&lt;/li&gt;
+&lt;li&gt;If $c=0$ (the errors are perfectly uncorrelated) then we have improved the error by a factor of $k$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Different ensemble methods construct the models in different ways; bagging is one way&lt;/li&gt;
+&lt;li&gt;In bagging, you construct $k$ different datasets by sampling with replacement from the original dataset, and get $k$ models by training on those $k$ datasets&lt;/li&gt;
+&lt;li&gt;Model averaging is &amp;ldquo;an extremely powerful and reliable method for reducing generalization error&amp;rdquo;.  Scientific papers usually don&amp;rsquo;t have any averaging, because everyone knows you can make your results better by averaging&lt;/li&gt;
+&lt;li&gt;Quick mention of &lt;em&gt;boosting&lt;/em&gt;, which is an ensemble method which does not aim at regularisation, but rather at increasing the capacity of the input models&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;dropout&#34;&gt;Dropout&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Bagging involves training multiple models, then evaluating each model on a test sample (then e.g. taking the majority vote).  This is computationally expensive, dropout is a cheaper alternative&lt;/li&gt;
+&lt;li&gt;Training with dropout:
+
+&lt;ul&gt;
+&lt;li&gt;For each training sample, randomly generate a bitmask on the input and hidden units.  The randomness is independent of the sample, typically probability of including an input unit is $0.8$, and $0.5$ for hidden units.  For the units that are off, exclude them from the network (e.g. multiply the unit&amp;rsquo;s output by zero).&lt;/li&gt;
+&lt;li&gt;During training, we minimise $\mathbb{E}_{\mathbf{\mu}} J(\mathbf{\theta}, \mathbf{\mu})$, where $\mathbf{\mu}$ is the bitmask vector.  This expectation has exponentialy many terms, but we can approximate it by sampling $\mathbf{\mu}$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;For both bagging and dropout, we can make predictions by taking a majority vote.  If we are just classifying, it&amp;rsquo;s clear what to do here.  For predicting an actual probability disstribution, we need to be more specific
+
+&lt;ul&gt;
+&lt;li&gt;Bagging: each model $i$ gives a prediction $p^{(i)}(y|\mathbf{x})$, and to combine we just average $\frac{1}{k} \sum_i p^{(i)}(y|\mathbf{x})$&lt;/li&gt;
+&lt;li&gt;Dropout: this time weight by the probability of the bitmask, $\sum_{\mu} p(\mathbf{\mu}) p(y|\mathbf{x})$.  Obviously we can&amp;rsquo;t compute this full sum, but again approximate by sampling $\mathbf{\mu}$.  Apparently 10-20 samples of $\mathbf{\mu}$ is enough to see good performance improvements&lt;/li&gt;
+&lt;li&gt;We can also take the &lt;em&gt;geometric&lt;/em&gt; mean, $\widetilde{p}(y|\mathbf{x}) = \left(\prod_\mathbf{\mu} p(y|\mathbf{x}, \mathbf{\mu})\right)^{2^{-d}}$, where $d$ is the length of $\mathbf{\mu}$.  We impose that none of the conditional probabilities on the RHS are zero.  Note that the LHS is not normalised&lt;/li&gt;
+&lt;li&gt;We can approximate $\widetilde{p}(y|\mathbf{x})$ with a single evaluation of a specific model: namely compute $p(y|\mathbf{x})$ in the model where we take the usual neural net and the output of unit $i$ by the probability that unit $i$ is included.  This is the &lt;em&gt;weight scaling inference rule&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;E.g. consider a softmax classifier $P(y|\mathbf{v}) = \text{softmax}(\mathbf{W}^{\intercal}\mathbf{v} + \mathbf{b})_y$, and suppose we do dropout where each unit is included with probability $&lt;sup&gt;1&lt;/sup&gt;&amp;frasl;&lt;sub&gt;2&lt;/sub&gt;$.  A bit of maths shows that the network with weights $\frac{1}{2}\mathbf{W}$ computes $\widetilde{p}(y|\mathbf{v})$ &lt;em&gt;exactly&lt;/em&gt;. This is an example of weight scaling inference, though in general it only gives an approximation&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Dropout is good because it doesn&amp;rsquo;t add much computational cost, and it does not affect the kind of network that can be used (e.g. dropout in RNNs is just fine)&lt;/li&gt;
+&lt;li&gt;However, since dropout is a regularisation technique, it does reduce the capacity of the model, and hence you are probably offsetting this by using a larger model in the first place.  Dropout does not do well when there are very few labelled training examples&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;adverserial-training&#34;&gt;Adverserial Training&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Idea is to search for examples that the network will misclassify, i.e. find $\mathbf{x&amp;rsquo;}$ near $\mathbf{x}$ such that the model output at $\mathbf{x&amp;rsquo;}$ is very different to that at $\mathbf{x}$.  We call $\mathbf{x&amp;rsquo;}$ the &lt;em&gt;adverserial example&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;Example of an image $\mathbf{x}$ of a panda (correctly classified).  Replace with $\mathbf{x} + \epsilon \text{sgn}(\nabla_\mathbf{x} J(\mathbf{\theta}, \mathbf{x}, y))$.  This makes no visual difference, but the classifer now classifies it as a gibbon&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Adverserial training&lt;/em&gt;: training on adverserial perturbed examples from the training set&lt;/li&gt;
+&lt;li&gt;Neural network respond to adversarial training, effectively this forces the neural network function to be locally constant around training datapoints.  This is something that is possible as we are regularising a large function family.  You could not do something like this with logistic regression&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;tangent-distance-tangent-prop-and-manifold-tangent-classifier&#34;&gt;Tangent Distance, Tangent Prop and Manifold Tangent Classifier&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Recall the manifold hypothesis: assuming that the data lies on a low dimensional manifold in input space (e.g. real world images inside all possible images)&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Tangent distance algorithim&lt;/em&gt;: doing classification, assume that examples on the same manifold share the same category.  Do a nearest neighbours algorithm, but rather than looking at distance between points, look at the distance between their manifolds.  We can approximate this by approximation the manifold by the tangent plane.  This requires upfront knowledge about what the tangent plane is (which you get by e.g. knowing your image is invariant by translation, etc.)&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Tangent prop&lt;/em&gt;: want to force your classifier to be invariant along the manifold along which samples in this class are concentrated, so add a regularisation term $\Omega(f) = \sum_i \left((\nabla_\mathbf{x} f(\mathbf{x}))^{\intercal} \mathbf{v}^{(i)}\right)$, where $\mathbf{v}^{(i)}$ are the manifold tangent vectors at $\mathbf{x}$.  Again this requires upfront knowledge about the manifold and its tangent plane&lt;/li&gt;
+&lt;li&gt;Compare adverserial training and tangent prop: former encourages the model to be invariant to small perturbations in all directions, latter encourages the model to be invariant to small perturbations in specified directions&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Manifold tangent classifier&lt;/em&gt;: removes the need to specify the tangent directions upfront.  First it uses an autoencoder to learn the manifold structure by unsupervised learning, then uses these learned tangents in tangent prop.  Will cover in more detail later&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    <item>
       <title>Setting up a static web page in 2019</title>
       <link>https://mjdickson.dev/posts/setting-up-a-static-webpage-in-2019/</link>
       <pubDate>Mon, 23 Sep 2019 07:26:00 +0100</pubDate>
@@ -378,6 +1186,65 @@ what URL is randomly generated!&lt;/p&gt;
 for the full example.&lt;/p&gt;
 
 &lt;p&gt;&lt;/div&gt;&lt;/p&gt;
+</description>
+    </item>
+    <item>
+      <title>Dual booting Arch and Windows</title>
+      <link>https://mjdickson.dev/posts/dual-booting-arch-and-windows/</link>
+      <pubDate>Sat, 02 Jun 2018 07:13:53 +0100</pubDate>
+      <guid>https://mjdickson.dev/posts/dual-booting-arch-and-windows/</guid>
+      <description>&lt;p&gt;I recently got a &lt;a href=&#34;https://www.amazon.co.uk/gp/product/B07CRJ9SHK/ref=oh_aui_detailpage_o03_s00?ie=UTF8&amp;amp;psc=1&#34;&gt;new
+laptop&lt;/a&gt;
+which came with Windows 10 by default. Normally the first thing I do
+when I get a new laptop is completely over-write the Windows
+installation and install whatever Linux distribution is my favourite at
+that point. This time, for gaming reasons, I decided to keep Windows and
+dual boot Linux. I&amp;rsquo;ve been happily using Arch Linux for a couple of
+years now, so I decided to use that as my Linux distribution.&lt;/p&gt;
+
+&lt;p&gt;The Arch installation process is mostly straightforward, if a bit time
+consuming. The one exception is that using &lt;code&gt;fdisk&lt;/code&gt; to manage partitions
+can be a bit intimidating for inexperienced users like myself. This is
+especially true when you&amp;rsquo;re trying to keep a working UEFI Windows
+installation in the background, as this involves a number of partitions
+in itself.&lt;/p&gt;
+
+&lt;p&gt;To save myself any worries, I decided to do the following:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Install Ubuntu alongside Windows, using the GUI that provides for
+partitioning to sort out my hard disk.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Overwrite that Ubuntu installation with an Arch Linux installation&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This worked pretty well. Installing Ubuntu is of course easy. Installing
+Arch in an already existing partition is also pretty straightforward.
+The only pain point I can remember is that I wasn&amp;rsquo;t sure if I would have
+to install a bootloader when I installed Arch. I tried without. When I
+booted again I got to the &lt;code&gt;grub&amp;gt;&lt;/code&gt; screen, so whatever bootloader I was
+using didn&amp;rsquo;t know where to look for configuration. I couldn&amp;rsquo;t work out
+how to boot in to Arch from there so I just booted from the USB again
+and mounted the partition I was trying to install on as usual. I
+&lt;code&gt;chroot&lt;/code&gt;ed in again and set up GRUB correctly, and it worked after that.&lt;/p&gt;
+
+&lt;p&gt;Since I had to run through a couple of times, I got very used to
+connecting to my WIFI network from the command line. The commands to do
+this are&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;iw dev # to get the name of the network interface, e..g `wlp1s0` 
+rfkill unblock wifi # may be unnecessary for you
+ip link set wlp1s0 up
+wpa_passphrase &amp;lt;network_SSID&amp;gt; &amp;gt;&amp;gt; /etc/wpa_supplicant.conf
+wpa_supplicant -B -D wext -i wlp1s0 -c /etc/wpa_supplicant.conf
+iw wlp1s0 # should look happy
+dhclient wlp1s0 # get ip address; hangs if wrong password above
+ping www.archlinux.org
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I had to do that a few times, which was one of the things that slowed me
+down most during the installation. Other than that things went fairly
+smoothly!&lt;/p&gt;
 </description>
     </item>
   </channel>

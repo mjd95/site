@@ -1,7 +1,6 @@
 ---
 title: "Dual booting Arch and Windows"
 date: 2018-06-02T07:13:53+01:00
-draft: true
 ---
 
 I recently got a [new

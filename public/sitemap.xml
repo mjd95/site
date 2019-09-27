@@ -3,13 +3,18 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://mjdickson.dev/posts/goodfellow-deep-learning-pt1/</loc>
+    <lastmod>2019-09-24T08:08:00+01:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://mjdickson.dev/</loc>
-    <lastmod>2019-09-23T07:26:00+01:00</lastmod>
+    <lastmod>2019-09-24T08:08:00+01:00</lastmod>
   </url>
   
   <url>
     <loc>https://mjdickson.dev/posts/</loc>
-    <lastmod>2019-09-23T07:26:00+01:00</lastmod>
+    <lastmod>2019-09-24T08:08:00+01:00</lastmod>
   </url>
   
   <url>
@@ -25,6 +30,11 @@
   <url>
     <loc>https://mjdickson.dev/posts/local-wildcard-dns/</loc>
     <lastmod>2018-09-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mjdickson.dev/posts/dual-booting-arch-and-windows/</loc>
+    <lastmod>2018-06-02T07:13:53+01:00</lastmod>
   </url>
   
   <url>
