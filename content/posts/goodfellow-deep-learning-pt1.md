@@ -224,18 +224,18 @@ In the unlikely situation that my notes could be useful to anyone else, I though
 
 ## Chapter 6 - Deep Feedforward Networks
 
-  * _Deep feedforward networks_ (DFNs) (or _feedforward neural networks_, or _multilayer perceptrons_): will fit into standard framework: learn $y = f^\*(\mathbf{x})$ by considering a family $f(\mathbf{x}; \mathbf{\theta})$ and learning the $\mathbf{\theta}$ that gives the best approximation
+  * _Deep feedforward networks_ (DFNs) (or _feedforward neural networks_, or _multilayer perceptrons_) provide a particular means to learn $y = f^\*(\mathbf{x})$ by considering a family $f(\mathbf{x}; \mathbf{\theta})$ and learning the $\mathbf{\theta}$ that gives the best approximation
   * They are _feedforward_ because information flows completely from $\mathbf{x}$ to $y$ - there is no _feedback_.  (When there is feedback, this is a recurrent neural network (RNN))
   * Convolutional neural networks (CNNs), popular in object recognition, are a special kind of DFN.  DFNs are also a conceptual stepping stone towards RNNs (which are popular in natural language tasks)
   * Feedforwarded networks have an associated DAG, nodes in the DAG are functions to evaluate and edges represent composition
-    - Have _layers_.  First one you encounter when traersing the DAG is the input layer, last one is the output layer.  Layers in the middle are called hidden layers
+    - Have _layers_.  First one you encounter when traversing the DAG is the input layer, last one is the output layer.  Layers in the middle are called hidden layers
     - Overall length to the output layer is called the _depth_
     - Each hidden layer is typically vector valued, the dimensionality of these hidden layers is called the _width_ of the layer 
     - Can think of each layer as a vector-to-vector function, or as composed of a number of _units_ which are vector-to-scalar functions.  The latter point of view can be pushed in to a rough anology with brains
   * Motivation: Consider trying to use a linear model (e.g. linear regression, logistic regression) in a case where there is a non-linear relationship between the input and the target.  Previously we would try to do some preprocessing with a function $\phi$
     - This could be hand-crafted, but any attempt is going to be very specialized to the problem/domain
     - Could use a very generic feature mapping like the RBF kernel, but this often does not generalize well (this optimises for finding a locally smooth solution, rather than digging in to the problem at hand)
-    - In DL you learn $\phi$.  Have $y = f(\mathbf{x};\mathbf{\theta}, \mathbf{w}) = \phi(\mathbf{x};\mathbf{\theta})^T \mathbf{w}$.  Have parameters $\mathbf{\theta}$ used to learn $\phi$ from a family of functions, and $\mathbf{w}$ for the actual linear regression part.  This is a feedforward neural network with one hidden layer.  This makes the optimisation problem harder (no longer convex) but we can use numerical methods
+    - In DL you _learn_ $\phi$.  Have $y = f(\mathbf{x};\mathbf{\theta}, \mathbf{w}) = \phi(\mathbf{x};\mathbf{\theta})^T \mathbf{w}$.  Have parameters $\mathbf{\theta}$ used to learn $\phi$ from a family of functions, and $\mathbf{w}$ for the actual linear regression part.  This is a feedforward neural network with one hidden layer.  This makes the optimisation problem harder (no longer convex) but we can use numerical methods
 
 ### Learning XOR
 
@@ -244,7 +244,7 @@ In the unlikely situation that my notes could be useful to anyone else, I though
     - To make things simple, we model it as a regression problem with MSE loss function, so $J(\mathbf{\theta}) = \frac{1}{4} \sum\_{\mathbf{x} \in X} (f^\*(\mathbf{x})-f(\mathbf{x};\mathbf{\theta}))^2$
     - If we choose a linear model $f(\mathbf{x}; \mathbf{w}, b) = \mathbf{x}^T \mathbf{w} + b$ and minimise in the usual way with the normal equations, we end up with $\mathbf{w}=\mathbf{0}$ and $b=\frac{1}{2}$.  Clearly a linear function cannot learn `XOR`
     - Instead we want to transform feature space to a different space where a linear model becomes appropriate.  Introduce a single hidden layer $f^{(1)}(\mathbf{z}; \mathbf{W}, \mathbf{c})$, keep the linear regression output layer $y = f^{(2)}(\mathbf{h}; \mathbf{w}, b)$, so the whole model is $f(\mathbf{x}; \mathbf{W}, \mathbf{c}, \mathbf{w}, b) = f^{(2)}(f^{(1)}(\mathbf{x})))$
-    - Clearly $f^{(1)}$ must be non-linear here.  Most neural networks use an affine transformation controlled by learning parameters, followed by a fixed non-linear activation function.  We do that here, with $\mathbf{h} = g(\mathbf{W}^T\mathbf{x}+\mathbf{c})$.  The activation function $g$ is typically chosen to be a function that is applied element-wise (i.e. $h\_i = g((\mathbf{W}^t\mathbf{x})\_{i} + c\_i)$).  The _rectified linear unit_ (ReLU) $g(z) = \max(0, z)$ is a common choice which we use here
+    - Clearly $f^{(1)}$ must be non-linear here.  Most neural networks use an affine transformation controlled by learning parameters, followed by a fixed non-linear activation function.  We do that here, with $\mathbf{h} = g(\mathbf{W}^T\mathbf{x}+\mathbf{c})$.  The activation function $g$ is typically chosen to be a function that is applied element-wise (i.e. $h\_i = g((\mathbf{W}^T\mathbf{x})\_{i} + c\_i)$).  The _rectified linear unit_ (ReLU) $g(z) = \max(0, z)$ is a common choice which we use here
     - The whole thing is now $f(\mathbf{x}; \mathbf{W}, \mathbf{c}, \mathbf{w}, b) = \mathbf{w}^T\max(\mathbf{0}, \mathbf{W}^T\mathbf{x}+\mathbf{c}) + b$.  At this point, can find a solution by inspection.  Of course, we generally wouldn't be able to see a solution immediately, so we would have to do the gradient optimisation algorithm and get some approximation
 
 ### Gradient-Based Learning
@@ -255,13 +255,13 @@ In the unlikely situation that my notes could be useful to anyone else, I though
   * Use regularization techniques as well.  E.g. weight decay can be applied pretty much verbatim, there are also other ones we'll cover later
   * Cost function:
     - In most cases, we have a parametric set-up and can calculate $p(\mathbf{y}|\mathbf{x}, \mathbf{\theta})$, and we can use maximum likelihood
-      - As usual, this is $$J(\mathbf{\theta}) = -\mathbb{E}\_{\mathbf{x}, \mathbf{y} \sim \widehat{p}\_{\text{data}}} \left(\log p\_{\text{model}}(\mathbf{y}|\mathbf{x})\right)$$
+      - As usual, the equivalent cost function is $$J(\mathbf{\theta}) = -\mathbb{E}\_{(\mathbf{x}, \mathbf{y}) \sim \widehat{p}\_{\text{data}}} \left[\log p\_{\text{model}}(\mathbf{y}|\mathbf{x})\right]$$
       - The exact form depends on $p\_\text{model}(\mathbf{y}|\mathbf{x},\theta)$.  If we work with $p\_{\text{model}}(y|\mathbf{x},\mathbf{\theta}) = \mathcal{N}(y;f(\mathbf{x},\mathbf{\theta}),\mathbf{I})$ then we get mean squared error cost again
       - Maximum likelihood is good, because you don't have to ad hoc construct a cost function, it just comes out of your model
-      - Gradient of cost function must be "large and predictable" enough.  There is a risk for some of the units in the network to flatten the gradient, and it's difficult to be sure you're optimising correctly if the gradient is flat.  Log likelihoods help as they unflatten by undoing the exponentation in some units.  Authors refer to this flattening as _saturation_
+      - Gradient of cost function must be "large and predictable" enough.  There is a risk for some of the units in the network to flatten the gradient, and it's difficult to be sure you're optimising correctly if the gradient is flat.  Log likelihoods help as they unflatten by undoing the exponentation in some units.  This flattening phenomenom is called _saturation_
       - Usually the cross-entropy function in MLE does not actually have a minimum in these cases (think of the exponentials in ReLUs etc.) so some regularisation is needed to stop things getting carried away
     - In some cases, we only need to predict some statistic of $\mathbf{y}$ conditional on $\mathbf{x}$, e.g. have a predictor $f(\mathbf{x}; \mathbf{\theta})$ that we want to use to predict the mean of $\mathbf{y}$
-      - Using calculus of variations, we can find the solution to $f^\* = \text{argmin}\_f \mathbb{E}\_{\mathbf{x}, \mathbf{y} \sim \widehat{p}\_\text{data}} (\mathbf{y}-f(\mathbf{x}))^2$ is $f^\*(x) = \mathbb{E}\_{\mathbf{y} \sim \widehat{p}\_{\text{data}}(\mathbf{y}|\mathbf{x})} [\mathbf{y}]$.  To make sense of this, think of having a really large dataset where you have a bunch of different predictions for $\mathbf{x}$; this is saying that your best bet is to predict the mean
+      - Using the calculus of variations, we can find the solution to $$f^\* = \text{argmin}\_f \left[\mathbb{E}\_{(\mathbf{x}, \mathbf{y}) \sim \widehat{p}\_\text{data}} \left[\mathbf{y}-f(\mathbf{x})\right]^2\right]$$ is $$f^\*(x) = \mathbb{E}\_{\mathbf{y} \sim \widehat{p}\_{\text{data}}(\mathbf{y}|\mathbf{x})} [\mathbf{y}].$$  To make sense of this, think of having a really large dataset where you have a bunch of different predictions for $\mathbf{x}$; this is saying that your best bet prediction is to predict the mean of those different sample predictions
       - On the other hand, if we instead minimise the $L^1$ norm (_mean absolute error_), we recover a function that predicts the _median_ value $\mathbf{y}$ for each $\mathbf{x}$
       - These don't give great results apparently, seems to be common to predict the full distribution even if you just want the mean at the end of the day
   * Output units:
@@ -270,20 +270,16 @@ In the unlikely situation that my notes could be useful to anyone else, I though
     - For a linear output, can use a linear unit $\widehat{\mathbf{y}} = \mathbf{W}^{\intercal}\mathbf{h}+\mathbf{b}$
       - Typically assume Gaussian noise as well, $p(\mathbf{y}|\mathbf{x}) = \mathcal{N}(\mathbf{y};\widehat{\mathbf{y}},\mathbf{I})$, and then we're back in the familiar maximise log-likelihood / minimise MSE situation
        - Could also try to learn the covariance matrix, but since it has to remain positive definite the optimisation is a bit more tricky.  We'll see other units used to parametrise covariance 
-    - Suppose you had binary output instead.
-      - MLE approach would be to define a Bernoulli distribution for $\mathbf{y}$ conditional on $\mathbf{x}$, then you just have to find the most likely value of $P(y=1|\mathbf{x})$.  Because it's simpler to work with logs, we instead find the most likely value of the logarithm.  We work with an unnormalized version $\tilde{P}$ of $P$ (can normalise later), so must find the most likely value of $\log \tilde{P}(y=1|\mathbf{x})$
-      - We have $z = \mathbf{w}^T\mathbf{h}+b$, and we assume that the probability takes the form $\log \tilde{P}(y|\mathbf{x}) = yz$.  Then easy to show that $P(y|\mathbf{x}) = \sigma((2y-1)z)$, where $\sigma(x) = 1/(1+e^{-x})$
-      - This sort of thing is quite common in ML.  The variables fed in to these logistic functions ($z$ here) are called _logits_
-      - Loss function is $J(\mathbf{\theta}) = - \log P(y|\mathbf{x}) = \zeta((1-2y)z)$, where $\zeta(x) = \log(1+\exp(x))$ is the softplus function.  This doesn't saturate during gradient-based optimisation, unlike what comes out in direct MSE (where you are working directly with $\sigma$)
-    - Now suppose you had a multinoulli output
-      - Need to produce $\mathbf{\widehat{y}}$, with $\widehat{y}\_i = P(y=i|\mathbf{x})$.  We have a linear layer predicting $\mathbf{z} = \mathbf{W}^{\intercal}\mathbf{h}+\mathbf{b}$, and we interpret these as unnormalized log probabilities $z\_i = \log \tilde{P}(y=i|\mathbf{x})$
-      - Then apply the softmax function $\text{softmax}(\mathbf{z})\_i = \frac{\exp(z\_i)}{\sum\_j \exp(z\_j)}$
-      - This leads to log-likelihood $\log \text{softmax}(\mathbf{z})\_i = z_i - \log \sum\_j \exp(z\_j)$.  The second term is roughly the max of the $z\_k$, so when we are tweaking the $z\_i$ to maximise the log likelihood, we are pushing $z\_i$ up and pushing the most loudest incorrect prediction $z\_k$ down
-      - Similar point about log-likelihood working well, but any objective function which does not use a $\log$ to undo the $\exp$ in the softmax will not work well
+    - Now suppose you had a multinoulli output (including Bernoulli, when $n=2$)
+      - Take a MLE approach again.  Want to produce $\mathbf{\widehat{y}}$, with $\widehat{y}\_i = P(y=i|\mathbf{x})$ the most likely given the data (i.e., minimising the cross-entropy with the empirical distribution)
+      - We have a linear layer predicting $\mathbf{z} = \mathbf{W}^{\intercal}\mathbf{h}+\mathbf{b}$, and we interpret these as unnormalized log probabilities $z\_i = \log \tilde{P}(y=i|\mathbf{x})$
+      - Then apply the softmax function to get our actual guesses for probabilities, $p(y=i|\mathbf{x}) = \text{softmax}(\mathbf{z})\_i = \frac{\exp(z\_i)}{\sum\_j \exp(z\_j)}$
+      - The cost function is then $$J(\theta) = -\mathbb{E}\_{(\mathbf{x}, y) \sim \widehat{p}\_{\text{data}}} \left[z\_i - \log\left(\sum\_j \exp(z\_j)\right)\right].$$  Note that $\log\left(\sum\_j \exp(z\_j)\right)$ is roughly the max of the $z\_j$, so when we are tweaking the $z\_i$ to minimise the cost function, we are pushing $z\_i$ up and pushing the loudest incorrect prediction $z\_j$ down
+      - Log-likelihood works well, but any objective function which does not use a $\log$ to undo the $\exp$ in the softmax will not work well
       - Softmax itself can also be translated to make it more numerically stable $\text{softmax}(\mathbf{z}) = \text{softmax}(\mathbf{z}-\text{max}\_i(z\_i))$
       - Softmax is a misleading name, it's more of a softargmax, i.e. it's a soft version of something that picks the _index_ which maximises, it does not pick the maxiumum _value_
     - In general, we can view the hidden layers of the neural network as outputting $\mathbf{\omega} = f(\mathbf{x}; \theta)$, and we regard this as the parameters for the distribution at our output layer.  Then we have $p(y|\mathbf{\omega})$, and MLE says we should use $-\log p(y|\mathbf{\omega}(\mathbf{x}))$ as our cost function
-      - Consider learning variance of $\mathbf{y}$ given $\mathbf{x}$.  This is easy if $\sigma^2$ is constant (indeed, the MLE is just the empirical variance),  But if we don't make that assumption, we can just say that variance of $\mathbf{y}$ is something controlled by $\mathbf{\omega} = f(\mathbf{x};\mathbf{\theta})$.
+      - Consider learning variance of $\mathbf{y}$ given $\mathbf{x}$.  This is easy if $\sigma^2$ is constant (indeed, the MLE is just the empirical variance),  but if we don't make that assumption, we can just say that variance of $\mathbf{y}$ is something controlled by $\mathbf{\omega} = f(\mathbf{x};\mathbf{\theta})$.
         - If $\sigma$ does not depend on $\mathbf{x}$ (homoscedastic case), we can just include $\sigma$ as an additional term in $\mathbf{\omega}$, nothing to do with the previous layers going on
         - If $\sigma$ does depend on $\mathbf{x}$ (heteroscedastic case), then $\sigma$ is actually output by the hidden layers
       - When actually learning $\sigma$, it's probably helpful to rephrase it in terms of learning the precision matrix instead
@@ -540,3 +536,31 @@ In the unlikely situation that my notes could be useful to anyone else, I though
     - Optimisation algorithms that use the whole dataset are called _batch_ (or _deterministic_) methods
     - Optimisation algorithms that onle use a single example at a time are called _stochastic_ (or _online_) methods
     - Most algorithms used in DL are somewhere in between, and are called _minibatch_ (or sometimes _stochastic_) methods.  Canonical example: stochastic gradient descent
+  * Picking batch sizes is an art:
+    - There are diminishing returns with very large batches
+    - Low batch sizes (e.g. single sample) seem to help improve generalisation error, but require a small learning rate for stability (as low sample size means large variance in the estimate of the gradient), so this can be very costly
+    - Samples in a batch can easily be parallelised, so you should make use of that.  But memory becomes a bottleneck for the amount of parallelism
+    - GPU architecture means powers of two are common, anything in the range from $32$ to $256$
+  * Purely first order optimisation methods (i.e., only need the gradient) can get away with batch size in the hundreds, but second order methods (i.e., need the Hessian) need batch sizes a couple of orders of magnitude higher, unsurprisingly
+  * Obviously you have to pick minibatches randomly!  
+    - Care might be needed here, e.g. the data might be presented to you in such a way that consecutive samples are correlated with each other
+    - Most implementations of minibatch SGD suffle the data once then proceed in minibatch-sized chunks through the data multiple times.  The first pass gives an unbiased estimate of the _generalisation_ error, but later passes are not quite unbiased.  (To see this, just write out the equations.)
+    - The later epochs (passes through the data) are good, at least for a few epochs, as the improvements they make to the training error offset the fact that they are probably increasing the gap between the training error and the test error
+  * As datasets become larger and larger, increasingly ML applications are tending towards using each training sample exactly once.  When the dataset is very large, overfitting is not an issue; underfitting and computational efficiency are the main concerns
+
+### Challenges in Neural Network Optimisation
+
+  * Generally, in DL the optimisation is harder because you're doing non-convex optimisation
+  * One problem (even in the convex case) is _ill conditioning_ of the Hessian:
+    - To second order, a gradient descent step of $\epsilon \mathbf{g}$ adds $$\frac{1}{2} \epsilon \mathbf{g}^{\intercal}} \mathbf{H} \mathbf{g} - \epsilon \mathbf{g}^{\intercal} \mathbf{g}$$
+    - Ill-conditioning is when the first term dominates the second
+  * Newton's method is one way to minimise convex functions with poorly conditioned Hessians, but can't be directly applied in the non-convex NN case
+  * In convex optimisation, a local minimimum is guaranteed to be a global minimum.  However, for non-convex (in particular NN) problems, there are generally many local minima.  But just picking one isn't too bad
+  * _Model identifiability_: a model is said to be identifiable if a sufficiently large training set can rule out all but one setting of a model's parameters.  DL models with many latent variables obviously do not have this property.  We can take advantage of _weight space symmetry_ to generate counterexamples, but depending on whether we've imposed additional regularisation or not there could be a bunch of other ways of generating coutnterexamples
+  * Equivalent local minima (like the above examples) are fine: the cost is still the same.  The problem is if you end up in a local minimum which has a much higher cost than the global (or some other local) minimum
+  * Can construct networks which have these bad local minima.  There is research on whether real, practical networks do have them, but generally people think not
+  * Another problem is saddle points.  In higher dimensions, saddle points are much more likely than minima (think of Hessian with positive or negative eigenvalues; in high dimensional space, a mixture of positive and negative is much more likely then all positive)
+  * Interestingly, for many random functions, if a critical point has low cost then it is more likely to be a local minimum (and of course vice versa for maxima).  There are various results trying to fit simple neural networks in to this class of random functions, but nothing definitive
+  * Despite the proliferation of saddle points in high dimension, even first order (gradient-only) methods seem to do fine in practice, with SGD espacing the saddle points
+  * Saddle points are an issue for Newton's method.  Dauphin _et al_ introduced a _saddle free Newton method_ to get around this
+  * Large regions of near-flat gradient are a genuine problem.  In the non-convex case, you can just get stuck in a flat region of high cost, and that isn't good
