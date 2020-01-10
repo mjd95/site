@@ -18,7 +18,7 @@
   
   
   
-  <link rel="stylesheet" href="https://mjdickson.dev/css/base.min.1a54fb9deb4432a6bdbfaae514a30a7d9b401dbdb840a36b206dfd5d3ee60557.css" integrity="sha256-GlT7netEMqa9v6rlFKMKfZtAHb24QKNrIG39XT7mBVc=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://mjdickson.dev/css/base.min.d4fe357a8259c8923245491edad0ca7d654c6fef2ba82c24d1592569f883529f.css" integrity="sha256-1P41eoJZyJIyRUke2tDKfWVMb&#43;8rqCwk0VklafiDUp8=" crossorigin="anonymous">
   
   
 </head>
@@ -284,7 +284,7 @@
 <li>E.g. suppose I have $m$ samples from a Bernoulli distribution with parameter $\theta$, but I don&rsquo;t know $\theta$ and I want to estimate it instead.  For a particular value of $\theta$, I know that $p(x; \theta) = \theta^{x}(1-\theta)^{1-x}$.  So the thing I&rsquo;m trying to argmax is $\sum_{i=1}^m \log (\theta^{x_m}(1-\theta)^{1-x_m}) = \sum_{i=1}^m x_m \log(\theta) + (1-x_m)\log(1-\theta)$.  The derivative of this is $\sum_{i=1}^m \frac{x_m}{\theta} - \frac{1-x_m}{1-\theta}$ which is extremal when $\sum_{i=1}^m(1-\theta)x_m - (1-x_m)\theta = 0$, i.e. $m\theta_{\text{ML}} = \sum_{i=1}^m x_m$, i.e. at the sample mean.  This can be checked to be a maximum.</li>
 <li>Equivalent point of view: MLE is the estimate that moves $p(\mathbf{x}; \theta)$ closest to the empirical distribution $\widehat{p}_{\text{data}}$ in the KL sense.  (A short calculation shows that attempting to minimise the KL divergence boils down to maximising the above expectation over the empirical distribution.)<br /></li>
 <li>In a supervised setting, can do the same thing with conditional probabilities.  Here $\theta_{\text{ML}} = \text{argmax}_{\theta} \sum_{i=1}^m \log p(\mathbf{y}^{(i)} | \mathbf{x}^{(i)}; \theta)$</li>
-<li>E.g. linear regression.  Previously we just searched for functions of the form $y = \mathbf{w}^T \mathbf{x}$, and decided to pick $\mathbf{w}$ that minimised the mean square error on the training set.  Now think of the linear regression as outputting a conditional distribution $p(y | \mathbf{x})$ with Gaussian noise, i.e. we define $p(y|\mathbf{x}) = \mathcal{N}(y; \widehat{y}(\mathbf{x}; \mathbf{w}), \sigma^2)$.  A short calculation shows that maximises the log-likelihood of this is equivalent to minimising the the MSE on the training set as before</li>
+<li>E.g. linear regression.  Previously we just searched for functions of the form $y = \mathbf{w}^T \mathbf{x}$, and decided to pick $\mathbf{w}$ that minimised the mean square error on the training set.  Now think of the linear regression as outputting a conditional distribution $p(y | \mathbf{x})$ with Gaussian noise, i.e. we define $p(y|\mathbf{x}) = \mathcal{N}(y; \widehat{y}(\mathbf{x}; \mathbf{w}), \sigma^2)$.  A short calculation shows that maximising the log-likelihood of this is equivalent to minimising the the MSE on the training set as before</li>
 <li>MLE is consistent, under the condition that there is precisely one value of $\theta$ s.t. $p_{\text{data}} = p(.; \theta)$</li>
 <li>Consistency says nothing about the rate of convergence.  That is measured by statistical efficiency, which is quantified for parameter estimates by the MSE (over the data-generating distribution) between the estimated and the true parameter.  Cramer&ndash;Rao says that the MLE has the lowest MSE amongst all consistent estimators, so in this sense MLE is the asymptotically best estimator</li>
 <li>In practice, with small amounts of training data, maybe use regularization strategies to get biased versions of MLE which have lower variance</li>
@@ -319,7 +319,7 @@
 <ul>
 <li>Have $f(\mathbf{x}) = b + \sum_i \alpha_i k(\phi(\mathbf{x}), \phi(\mathbf{x}^{(i)}))$, where $\phi$ is some feature mapping and $k$ is some kernel.  Simplest case would be $\phi$ is the identity and $k$ is the dot product, but probably we&rsquo;re thinking of $\phi$ mapping in to some infinite-dimensional space</li>
 <li>Most commonly used kernel is the Gaussian kernel, $k(\mathbf{u}, \mathbf{v}) = \mathcal{N}(\mathbf{u}-\mathbf{v}; 0, \sigma^2 \mathbf{I})$, corresponds to a dot-product in an infinite dimensional space</li>
-<li>Think of Gaussian kernel as performing template matching.  Training example $(\mathbf{x}, y)$ becomes a template for class $y$.  When $\mathbf{x}&lsquo;$ is near $\mathbf{x}$ in the Euclidean sense, the Gaussian kernel has a large response, so the contribution of $\mathbf{x}$ to the prediction for $\mathbf{x}&lsquo;$ will be large (the corresponding $\alpha$ will count a lot).  We combine those for all training examples $\mathbf{x}$ to get our final prediction for $\mathbf{x}&lsquo;$</li>
+<li>Think of Gaussian kernel as performing template matching.  Training example $(\mathbf{x}, y)$ becomes a template for class $y$.  When $\mathbf{x&rsquo;}$ is near $\mathbf{x}$ in the Euclidean sense, the Gaussian kernel has a large response, so the contribution of $\mathbf{x}$ to the prediction for $\mathbf{x&rsquo;}$ will be large (the corresponding $\alpha$ will count a lot).  We combine those for all training examples $\mathbf{x}$ to get our final prediction for $\mathbf{x&rsquo;}$</li>
 <li>Generally, algorithms that look like this are called <em>kernel machines</em> or <em>kernel methods</em></li>
 <li>Since $f(\mathbf{x})$ involves each $\alpha_i k(\mathbf{x}, \mathbf{x}^{(i)})$ this could be very expensive to evaluate (involves computing the kernel once for each training sample).  In SVMs, most the of the $\alpha_i$ are zero, so it&rsquo;s not so bad.  Those $\alpha_i$ that are non-zero are called <em>support vectors</em></li>
 <li>History note: current deep learning renaissance <a href="https://www.cs.toronto.edu/~hinton/absps/fastnc.pdf">began</a> when a neural network was shown to outperform the radial basis function kernel SVM on MNIST</li>
@@ -349,7 +349,7 @@
 
 <ul>
 <li>PCA provides a means of compressing data.  Can also view as an unsupervised learning algorithm learning a representation of the data, specifically a lower-dimensional representation whose dimensions have no linear correlation with each other</li>
-<li>Recap of algorithm: have points $\mathbf{x} \in \mathbf{R}^n$, want lower dimensional representations $\mathbf{z} \in \mathbf{R}^l$.  Consider linear transformations $D:\mathbf{R}^l \to \mathbf{R}^n$ s.t. the columns of $D$ are orthonormal, i.e. $D$ is the decoding function.  The encoding function is just $\mathbf{x} \mapsto D^{\intercal} \mathbf{x}$, it can be checked this function minimises the distance between a given point $\mathbf{x}$ and its reconstruction.  $D$ is chosen by minimising the cumulative distance between <em>all</em> points and their reconstruction.  After a fair amount of maths we find that $D$ is matrix whose columns are the $l$ eigenvectors of $\mathbf{X}^{\intercal} \mathbf{X}$ corresponding to the largest eigenvalues</li>
+<li>Recap of algorithm: have points $\mathbf{x} \in \mathbf{R}^n$, want lower dimensional representations $\mathbf{z} \in \mathbf{R}^l$.  Consider linear transformations $D:\mathbf{R}^l \to \mathbf{R}^n$ s.t. the columns of $D$ are orthonormal, i.e. $D$ is the decoding function.  The encoding function is just $\mathbf{x} \mapsto D^{\intercal} \mathbf{x}$.  (Given that we&rsquo;ve already picked the decoding function, it can be checked this encoding function minimises the distance between a given point $\mathbf{x}$ and its reconstruction.)  $D$ is chosen by minimising the cumulative distance between <em>all</em> points and their reconstruction.  After a fair amount of maths we find that $D$ is matrix whose columns are the $l$ eigenvectors of $\mathbf{X}^{\intercal} \mathbf{X}$ corresponding to the largest eigenvalues</li>
 <li>How does PCA decorrelate the input $\mathbf{X}$?
 
 <ul>
@@ -422,13 +422,13 @@
 <h2 id="chapter-6-deep-feedforward-networks">Chapter 6 - Deep Feedforward Networks</h2>
 
 <ul>
-<li><em>Deep feedforward networks</em> (DFNs) (or <em>feedforward neural networks</em>, or <em>multilayer perceptrons</em>): will fit into standard framework: learn $y = f^*(\mathbf{x})$ by considering a family $f(\mathbf{x}; \mathbf{\theta})$ and learning the $\mathbf{\theta}$ that gives the best approximation</li>
+<li><em>Deep feedforward networks</em> (DFNs) (or <em>feedforward neural networks</em>, or <em>multilayer perceptrons</em>) provide a particular means to learn $y = f^*(\mathbf{x})$ by considering a family $f(\mathbf{x}; \mathbf{\theta})$ and learning the $\mathbf{\theta}$ that gives the best approximation</li>
 <li>They are <em>feedforward</em> because information flows completely from $\mathbf{x}$ to $y$ - there is no <em>feedback</em>.  (When there is feedback, this is a recurrent neural network (RNN))</li>
 <li>Convolutional neural networks (CNNs), popular in object recognition, are a special kind of DFN.  DFNs are also a conceptual stepping stone towards RNNs (which are popular in natural language tasks)</li>
 <li>Feedforwarded networks have an associated DAG, nodes in the DAG are functions to evaluate and edges represent composition
 
 <ul>
-<li>Have <em>layers</em>.  First one you encounter when traersing the DAG is the input layer, last one is the output layer.  Layers in the middle are called hidden layers</li>
+<li>Have <em>layers</em>.  First one you encounter when traversing the DAG is the input layer, last one is the output layer.  Layers in the middle are called hidden layers</li>
 <li>Overall length to the output layer is called the <em>depth</em></li>
 <li>Each hidden layer is typically vector valued, the dimensionality of these hidden layers is called the <em>width</em> of the layer</li>
 <li>Can think of each layer as a vector-to-vector function, or as composed of a number of <em>units</em> which are vector-to-scalar functions.  The latter point of view can be pushed in to a rough anology with brains</li>
@@ -438,7 +438,7 @@
 <ul>
 <li>This could be hand-crafted, but any attempt is going to be very specialized to the problem/domain</li>
 <li>Could use a very generic feature mapping like the RBF kernel, but this often does not generalize well (this optimises for finding a locally smooth solution, rather than digging in to the problem at hand)</li>
-<li>In DL you learn $\phi$.  Have $y = f(\mathbf{x};\mathbf{\theta}, \mathbf{w}) = \phi(\mathbf{x};\mathbf{\theta})^T \mathbf{w}$.  Have parameters $\mathbf{\theta}$ used to learn $\phi$ from a family of functions, and $\mathbf{w}$ for the actual linear regression part.  This is a feedforward neural network with one hidden layer.  This makes the optimisation problem harder (no longer convex) but we can use numerical methods</li>
+<li>In DL you <em>learn</em> $\phi$.  Have $y = f(\mathbf{x};\mathbf{\theta}, \mathbf{w}) = \phi(\mathbf{x};\mathbf{\theta})^T \mathbf{w}$.  Have parameters $\mathbf{\theta}$ used to learn $\phi$ from a family of functions, and $\mathbf{w}$ for the actual linear regression part.  This is a feedforward neural network with one hidden layer.  This makes the optimisation problem harder (no longer convex) but we can use numerical methods</li>
 </ul></li>
 </ul>
 
@@ -452,7 +452,7 @@
 <li>To make things simple, we model it as a regression problem with MSE loss function, so $J(\mathbf{\theta}) = \frac{1}{4} \sum_{\mathbf{x} \in X} (f^*(\mathbf{x})-f(\mathbf{x};\mathbf{\theta}))^2$</li>
 <li>If we choose a linear model $f(\mathbf{x}; \mathbf{w}, b) = \mathbf{x}^T \mathbf{w} + b$ and minimise in the usual way with the normal equations, we end up with $\mathbf{w}=\mathbf{0}$ and $b=\frac{1}{2}$.  Clearly a linear function cannot learn <code>XOR</code></li>
 <li>Instead we want to transform feature space to a different space where a linear model becomes appropriate.  Introduce a single hidden layer $f^{(1)}(\mathbf{z}; \mathbf{W}, \mathbf{c})$, keep the linear regression output layer $y = f^{(2)}(\mathbf{h}; \mathbf{w}, b)$, so the whole model is $f(\mathbf{x}; \mathbf{W}, \mathbf{c}, \mathbf{w}, b) = f^{(2)}(f^{(1)}(\mathbf{x})))$</li>
-<li>Clearly $f^{(1)}$ must be non-linear here.  Most neural networks use an affine transformation controlled by learning parameters, followed by a fixed non-linear activation function.  We do that here, with $\mathbf{h} = g(\mathbf{W}^T\mathbf{x}+\mathbf{c})$.  The activation function $g$ is typically chosen to be a function that is applied element-wise (i.e. $h_i = g((\mathbf{W}^t\mathbf{x})_{i} + c_i)$).  The <em>rectified linear unit</em> (ReLU) $g(z) = \max(0, z)$ is a common choice which we use here</li>
+<li>Clearly $f^{(1)}$ must be non-linear here.  Most neural networks use an affine transformation controlled by learning parameters, followed by a fixed non-linear activation function.  We do that here, with $\mathbf{h} = g(\mathbf{W}^T\mathbf{x}+\mathbf{c})$.  The activation function $g$ is typically chosen to be a function that is applied element-wise (i.e. $h_i = g((\mathbf{W}^T\mathbf{x})_{i} + c_i)$).  The <em>rectified linear unit</em> (ReLU) $g(z) = \max(0, z)$ is a common choice which we use here</li>
 <li>The whole thing is now $f(\mathbf{x}; \mathbf{W}, \mathbf{c}, \mathbf{w}, b) = \mathbf{w}^T\max(\mathbf{0}, \mathbf{W}^T\mathbf{x}+\mathbf{c}) + b$.  At this point, can find a solution by inspection.  Of course, we generally wouldn&rsquo;t be able to see a solution immediately, so we would have to do the gradient optimisation algorithm and get some approximation</li>
 </ul></li>
 </ul>
@@ -470,16 +470,16 @@
 <li>In most cases, we have a parametric set-up and can calculate $p(\mathbf{y}|\mathbf{x}, \mathbf{\theta})$, and we can use maximum likelihood
 
 <ul>
-<li>As usual, this is $$J(\mathbf{\theta}) = -\mathbb{E}_{\mathbf{x}, \mathbf{y} \sim \widehat{p}_{\text{data}}} \left(\log p_{\text{model}}(\mathbf{y}|\mathbf{x})\right)$$</li>
+<li>As usual, the equivalent cost function is $$J(\mathbf{\theta}) = -\mathbb{E}_{(\mathbf{x}, \mathbf{y}) \sim \widehat{p}_{\text{data}}} \left[\log p_{\text{model}}(\mathbf{y}|\mathbf{x})\right]$$</li>
 <li>The exact form depends on $p_\text{model}(\mathbf{y}|\mathbf{x},\theta)$.  If we work with $p_{\text{model}}(y|\mathbf{x},\mathbf{\theta}) = \mathcal{N}(y;f(\mathbf{x},\mathbf{\theta}),\mathbf{I})$ then we get mean squared error cost again</li>
 <li>Maximum likelihood is good, because you don&rsquo;t have to ad hoc construct a cost function, it just comes out of your model</li>
-<li>Gradient of cost function must be &ldquo;large and predictable&rdquo; enough.  There is a risk for some of the units in the network to flatten the gradient, and it&rsquo;s difficult to be sure you&rsquo;re optimising correctly if the gradient is flat.  Log likelihoods help as they unflatten by undoing the exponentation in some units.  Authors refer to this flattening as <em>saturation</em></li>
+<li>Gradient of cost function must be &ldquo;large and predictable&rdquo; enough.  There is a risk for some of the units in the network to flatten the gradient, and it&rsquo;s difficult to be sure you&rsquo;re optimising correctly if the gradient is flat.  Log likelihoods help as they unflatten by undoing the exponentation in some units.  This flattening phenomenom is called <em>saturation</em></li>
 <li>Usually the cross-entropy function in MLE does not actually have a minimum in these cases (think of the exponentials in ReLUs etc.) so some regularisation is needed to stop things getting carried away</li>
 </ul></li>
 <li>In some cases, we only need to predict some statistic of $\mathbf{y}$ conditional on $\mathbf{x}$, e.g. have a predictor $f(\mathbf{x}; \mathbf{\theta})$ that we want to use to predict the mean of $\mathbf{y}$
 
 <ul>
-<li>Using calculus of variations, we can find the solution to $f^* = \text{argmin}_f \mathbb{E}_{\mathbf{x}, \mathbf{y} \sim \widehat{p}_\text{data}} (\mathbf{y}-f(\mathbf{x}))^2$ is $f^*(x) = \mathbb{E}_{\mathbf{y} \sim \widehat{p}_{\text{data}}(\mathbf{y}|\mathbf{x})} [\mathbf{y}]$.  To make sense of this, think of having a really large dataset where you have a bunch of different predictions for $\mathbf{x}$; this is saying that your best bet is to predict the mean</li>
+<li>Using the calculus of variations, we can find the solution to $$f^* = \text{argmin}_f \left[\mathbb{E}_{(\mathbf{x}, \mathbf{y}) \sim \widehat{p}_\text{data}} \left[\mathbf{y}-f(\mathbf{x})\right]^2\right]$$ is $$f^*(x) = \mathbb{E}_{\mathbf{y} \sim \widehat{p}_{\text{data}}(\mathbf{y}|\mathbf{x})} [\mathbf{y}].$$  To make sense of this, think of having a really large dataset where you have a bunch of different predictions for $\mathbf{x}$; this is saying that your best bet prediction is to predict the mean of those different sample predictions</li>
 <li>On the other hand, if we instead minimise the $L^1$ norm (<em>mean absolute error</em>), we recover a function that predicts the <em>median</em> value $\mathbf{y}$ for each $\mathbf{x}$</li>
 <li>These don&rsquo;t give great results apparently, seems to be common to predict the full distribution even if you just want the mean at the end of the day</li>
 </ul></li>
@@ -495,28 +495,21 @@
 <li>Typically assume Gaussian noise as well, $p(\mathbf{y}|\mathbf{x}) = \mathcal{N}(\mathbf{y};\widehat{\mathbf{y}},\mathbf{I})$, and then we&rsquo;re back in the familiar maximise log-likelihood / minimise MSE situation</li>
 <li>Could also try to learn the covariance matrix, but since it has to remain positive definite the optimisation is a bit more tricky.  We&rsquo;ll see other units used to parametrise covariance</li>
 </ul></li>
-<li>Suppose you had binary output instead.
+<li>Now suppose you had a multinoulli output (including Bernoulli, when $n=2$)
 
 <ul>
-<li>MLE approach would be to define a Bernoulli distribution for $\mathbf{y}$ conditional on $\mathbf{x}$, then you just have to find the most likely value of $P(y=1|\mathbf{x})$.  Because it&rsquo;s simpler to work with logs, we instead find the most likely value of the logarithm.  We work with an unnormalized version $\tilde{P}$ of $P$ (can normalise later), so must find the most likely value of $\log \tilde{P}(y=1|\mathbf{x})$</li>
-<li>We have $z = \mathbf{w}^T\mathbf{h}+b$, and we assume that the probability takes the form $\log \tilde{P}(y|\mathbf{x}) = yz$.  Then easy to show that $P(y|\mathbf{x}) = \sigma((2y-1)z)$, where $\sigma(x) = 1/(1+e^{-x})$</li>
-<li>This sort of thing is quite common in ML.  The variables fed in to these logistic functions ($z$ here) are called <em>logits</em></li>
-<li>Loss function is $J(\mathbf{\theta}) = - \log P(y|\mathbf{x}) = \zeta((1-2y)z)$, where $\zeta(x) = \log(1+\exp(x))$ is the softplus function.  This doesn&rsquo;t saturate during gradient-based optimisation, unlike what comes out in direct MSE (where you are working directly with $\sigma$)</li>
-</ul></li>
-<li>Now suppose you had a multinoulli output
-
-<ul>
-<li>Need to produce $\mathbf{\widehat{y}}$, with $\widehat{y}_i = P(y=i|\mathbf{x})$.  We have a linear layer predicting $\mathbf{z} = \mathbf{W}^{\intercal}\mathbf{h}+\mathbf{b}$, and we interpret these as unnormalized log probabilities $z_i = \log \tilde{P}(y=i|\mathbf{x})$</li>
-<li>Then apply the softmax function $\text{softmax}(\mathbf{z})_i = \frac{\exp(z_i)}{\sum_j \exp(z_j)}$</li>
-<li>This leads to log-likelihood $\log \text{softmax}(\mathbf{z})_i = z_i - \log \sum_j \exp(z_j)$.  The second term is roughly the max of the $z_k$, so when we are tweaking the $z_i$ to maximise the log likelihood, we are pushing $z_i$ up and pushing the most loudest incorrect prediction $z_k$ down</li>
-<li>Similar point about log-likelihood working well, but any objective function which does not use a $\log$ to undo the $\exp$ in the softmax will not work well</li>
+<li>Take a MLE approach again.  Want to produce $\mathbf{\widehat{y}}$, with $\widehat{y}_i = P(y=i|\mathbf{x})$ the most likely given the data (i.e., minimising the cross-entropy with the empirical distribution)</li>
+<li>We have a linear layer predicting $\mathbf{z} = \mathbf{W}^{\intercal}\mathbf{h}+\mathbf{b}$, and we interpret these as unnormalized log probabilities $z_i = \log \tilde{P}(y=i|\mathbf{x})$</li>
+<li>Then apply the softmax function to get our actual guesses for probabilities, $p(y=i|\mathbf{x}) = \text{softmax}(\mathbf{z})_i = \frac{\exp(z_i)}{\sum_j \exp(z_j)}$</li>
+<li>The cost function is then $$J(\theta) = -\mathbb{E}_{(\mathbf{x}, y) \sim \widehat{p}_{\text{data}}} \left[z_i - \log\left(\sum_j \exp(z_j)\right)\right].$$  Note that $\log\left(\sum_j \exp(z_j)\right)$ is roughly the max of the $z_j$, so when we are tweaking the $z_i$ to minimise the cost function, we are pushing $z_i$ up and pushing the loudest incorrect prediction $z_j$ down</li>
+<li>Log-likelihood works well, but any objective function which does not use a $\log$ to undo the $\exp$ in the softmax will not work well</li>
 <li>Softmax itself can also be translated to make it more numerically stable $\text{softmax}(\mathbf{z}) = \text{softmax}(\mathbf{z}-\text{max}_i(z_i))$</li>
 <li>Softmax is a misleading name, it&rsquo;s more of a softargmax, i.e. it&rsquo;s a soft version of something that picks the <em>index</em> which maximises, it does not pick the maxiumum <em>value</em></li>
 </ul></li>
 <li>In general, we can view the hidden layers of the neural network as outputting $\mathbf{\omega} = f(\mathbf{x}; \theta)$, and we regard this as the parameters for the distribution at our output layer.  Then we have $p(y|\mathbf{\omega})$, and MLE says we should use $-\log p(y|\mathbf{\omega}(\mathbf{x}))$ as our cost function
 
 <ul>
-<li>Consider learning variance of $\mathbf{y}$ given $\mathbf{x}$.  This is easy if $\sigma^2$ is constant (indeed, the MLE is just the empirical variance),  But if we don&rsquo;t make that assumption, we can just say that variance of $\mathbf{y}$ is something controlled by $\mathbf{\omega} = f(\mathbf{x};\mathbf{\theta})$.</li>
+<li>Consider learning variance of $\mathbf{y}$ given $\mathbf{x}$.  This is easy if $\sigma^2$ is constant (indeed, the MLE is just the empirical variance),  but if we don&rsquo;t make that assumption, we can just say that variance of $\mathbf{y}$ is something controlled by $\mathbf{\omega} = f(\mathbf{x};\mathbf{\theta})$.</li>
 <li>If $\sigma$ does not depend on $\mathbf{x}$ (homoscedastic case), we can just include $\sigma$ as an additional term in $\mathbf{\omega}$, nothing to do with the previous layers going on</li>
 <li>If $\sigma$ does depend on $\mathbf{x}$ (heteroscedastic case), then $\sigma$ is actually output by the hidden layers</li>
 <li>When actually learning $\sigma$, it&rsquo;s probably helpful to rephrase it in terms of learning the precision matrix instead</li>
@@ -866,6 +859,244 @@
 <li><em>Tangent prop</em>: want to force your classifier to be invariant along the manifold along which samples in this class are concentrated, so add a regularisation term $\Omega(f) = \sum_i \left((\nabla_\mathbf{x} f(\mathbf{x}))^{\intercal} \mathbf{v}^{(i)}\right)$, where $\mathbf{v}^{(i)}$ are the manifold tangent vectors at $\mathbf{x}$.  Again this requires upfront knowledge about the manifold and its tangent plane</li>
 <li>Compare adverserial training and tangent prop: former encourages the model to be invariant to small perturbations in all directions, latter encourages the model to be invariant to small perturbations in specified directions</li>
 <li><em>Manifold tangent classifier</em>: removes the need to specify the tangent directions upfront.  First it uses an autoencoder to learn the manifold structure by unsupervised learning, then uses these learned tangents in tangent prop.  Will cover in more detail later</li>
+</ul>
+
+<h2 id="chapter-8-optimization-for-training-deep-models">Chapter 8 - Optimization for Training Deep Models</h2>
+
+<h3 id="how-learning-differs-from-pure-optimisation">How Learning Differs from Pure Optimisation</h3>
+
+<ul>
+<li>Fundamental optimisation problem of DL is to find parameters $\mathbf{\theta}$ of a neural network that significantly reduce a cost function $J(\mathbf{\theta})$</li>
+<li>Typically the cost function can be written as an average over the training set, $J(\mathbf{\theta}) = \mathbb{E}_{(\mathbf{x}, y) \sim \widehat{p}_{\text{data}}} L(f(\mathbf{x}; \mathbf{\theta}), y)$, where $L$ is a per-example loss function
+
+<ul>
+<li>We call this function the <em>emperical risk</em>.  Minimising this is <em>empirical risk minimisation</em></li>
+<li>For simplicity, we focus on the unregularized supervised case (i.e. $L$ is a function of $f(\mathbf{x}; \mathbf{\theta})$ and $y$), though it&rsquo;s easy to generalize</li>
+</ul></li>
+<li>Better than $J$ is if we can take the expectation over the actual distribution generating the data, $J^*(\mathbf{\theta}) = \mathbb{E}_{(\mathbf{x}, y) \sim p_{\text{data}}} L(f(\mathbf{x}: \mathbf{\theta}), y)$
+
+<ul>
+<li>This quantity is known as the <em>risk</em>.  It&rsquo;s what we really want to minimise, but we don&rsquo;t know the distribution</li>
+<li>Instead we could minimise the empirical risk and hope that it works for the risk too</li>
+</ul></li>
+<li>In DL, we generally don&rsquo;t even minimise the empirical risk directly.  (Reason: neural nets have high capacity, so danger of overfitting. Also our main tool is gradient-based optimisation, and useful loss functions like 0-1 loss don&rsquo;t have derivaties)</li>
+<li>A <em>surrogate loss function</em> is something you jam in place of your actual loss function.
+
+<ul>
+<li>E.g., minimising 0-1 loss directly is hard (lack of derivative, exponential dependence on input dimensionality) so you replace it with negative log-likelihood of the correct class</li>
+<li>The negative log-likelihood actually contains more information than what we&rsquo;re optimising (you can optimise it further and push class boundaries futher apart).  This happens sometimes</li>
+</ul></li>
+<li>We generally don&rsquo;t optimise all the way to a true local minimum, as we force in some early stopping to prevent overfitting</li>
+<li>Consider MLE, $\widehat{\mathbf{\theta}_{\text{ML}}} = \text{argmax}_{\mathbf{\theta}} \sum_{i=1}^m \log p_{\text{model}}(\mathbf{x}^{(i)}, y^{(i)}; \mathbf{\theta})$, which is argmaxing $J(\mathbf{\theta}) = \mathbb{E}_{(\mathbf{x}, y) \sim \widehat{p}_{\text{data}}} \log p_{\text{model}} (x, y; \mathbf{\theta})$.  Doing the argmaxing involves computing the derivative, which is also an expectation over the training set.
+
+<ul>
+<li>Computing this is expensive (if the data set is large), so we typically approximate by sampling</li>
+<li>Justification: most optimisation algorithms converge much faster if they are allowed to rapidly compute approximations rather than slowly compute the exact (and computing the exact is slow, because of the standard error of the mean is $\sigma/\sqrt{n}$, and the $\sqrt{n}$ in the denominator means it takes a lot of samples to reduce this).  Also, there migth be duplication/redundancy in the training set</li>
+<li>Optimisation algorithms that use the whole dataset are called <em>batch</em> (or <em>deterministic</em>) methods</li>
+<li>Optimisation algorithms that onle use a single example at a time are called <em>stochastic</em> (or <em>online</em>) methods</li>
+<li>Most algorithms used in DL are somewhere in between, and are called <em>minibatch</em> (or sometimes <em>stochastic</em>) methods.  Canonical example: stochastic gradient descent</li>
+</ul></li>
+<li>Picking batch sizes is an art:
+
+<ul>
+<li>There are diminishing returns with very large batches</li>
+<li>Low batch sizes (e.g. single sample) seem to help improve generalisation error, but require a small learning rate for stability (as low sample size means large variance in the estimate of the gradient), so this can be very costly</li>
+<li>Samples in a batch can easily be parallelised, so you should make use of that.  But memory becomes a bottleneck for the amount of parallelism</li>
+<li>GPU architecture means powers of two are common, anything in the range from $32$ to $256$</li>
+</ul></li>
+<li>Purely first order optimisation methods (i.e., only need the gradient) can get away with batch size in the hundreds, but second order methods (i.e., need the Hessian) need batch sizes a couple of orders of magnitude higher, unsurprisingly</li>
+<li>Obviously you have to pick minibatches randomly!<br />
+
+<ul>
+<li>Care might be needed here, e.g. the data might be presented to you in such a way that consecutive samples are correlated with each other</li>
+<li>Most implementations of minibatch SGD suffle the data once then proceed in minibatch-sized chunks through the data multiple times.  The first pass gives an unbiased estimate of the <em>generalisation</em> error, but later passes are not quite unbiased.  (To see this, just write out the equations.)</li>
+<li>The later epochs (passes through the data) are good, at least for a few epochs, as the improvements they make to the training error offset the fact that they are probably increasing the gap between the training error and the test error</li>
+</ul></li>
+<li>As datasets become larger and larger, increasingly ML applications are tending towards using each training sample exactly once.  When the dataset is very large, overfitting is not an issue; underfitting and computational efficiency are the main concerns</li>
+</ul>
+
+<h3 id="challenges-in-neural-network-optimisation">Challenges in Neural Network Optimisation</h3>
+
+<ul>
+<li>Generally, in DL the optimisation is harder because you&rsquo;re doing non-convex optimisation</li>
+<li>One problem (even in the convex case) is <em>ill conditioning</em> of the Hessian:
+
+<ul>
+<li>To second order, a gradient descent step of $\epsilon \mathbf{g}$ adds $$\frac{1}{2} \epsilon \mathbf{g}^{\intercal} \mathbf{H} \mathbf{g} - \epsilon \mathbf{g}^{\intercal} \mathbf{g}$$</li>
+<li>Ill-conditioning is when the first term dominates the second</li>
+</ul></li>
+<li>Newton&rsquo;s method is one way to minimise convex functions with poorly conditioned Hessians, but can&rsquo;t be directly applied in the non-convex NN case</li>
+<li>In convex optimisation, a local minimimum is guaranteed to be a global minimum.  However, for non-convex (in particular NN) problems, there are generally many local minima.  But just picking one isn&rsquo;t too bad</li>
+<li><em>Model identifiability</em>: a model is said to be identifiable if a sufficiently large training set can rule out all but one setting of a model&rsquo;s parameters.  This is related to uniquneess of minima.  DL models with many latent variables obviously do not have this property.  We can take advantage of <em>weight space symmetry</em> to generate counterexamples, but depending on whether we&rsquo;ve imposed additional regularisation or not there could be a bunch of other ways of generating counterexamples</li>
+<li>Equivalent local minima (like the above examples) are fine: the cost is still the same.  The problem is if you end up in a local minimum which has a much higher cost than the global (or some other local) minimum</li>
+<li>Can construct networks which have these bad local minima.  There is research on whether real, practical networks do have them, but generally people think not</li>
+<li>Another problem is saddle points.  In higher dimensions, saddle points are much more likely than minima (think of Hessian with positive or negative eigenvalues; in high dimensional space, a mixture of positive and negative is much more likely then all positive)</li>
+<li>Interestingly, for many random functions, if a critical point has low cost then it is more likely to be a local minimum (and of course vice versa for maxima).  There are various results trying to fit simple neural networks in to this class of random functions, but nothing definitive</li>
+<li>Despite the proliferation of saddle points in high dimension, even first order (gradient-only) methods seem to do fine in practice, with SGD escaping the saddle points</li>
+<li>Saddle points are an issue for Newton&rsquo;s method.  Dauphin <em>et al</em> introduced a <em>saddle free Newton method</em> to get around this</li>
+<li>Large regions of near-flat gradient are a genuine problem.  In the non-convex case, you can just get stuck in a flat region of high cost, and that isn&rsquo;t good</li>
+<li>Objective function for highly nonlinear DNNs often contains sharp nonlinearities (cliffs), that are obviously not a nice thing to have to deal with during your gradient-based optimisation.  These can be avoided with <em>clipping gradients</em>: when gradient descent suggests taking a very large step (due to large gradient), clip it off at a max value</li>
+<li>Think of a recurrent network repeatedly feeding through a diagonal matrix: any eigenvalues bigger than one go off to infinity, any smaller than one go to zero.  Gradients go similarly, which is obviously bad.  Mostly this is just an issue for recurrent networks; workaround discussed later</li>
+<li>One must always remember that the gradient is inexact, particularly if you are using some minibatching which means there is probabilistic uncertainty in here</li>
+<li>Another issue is where the learning location starts.  There might be a &ldquo;hill&rdquo; between your starting point and a good minimum, but you never make it over that hill.  In higher dimensions, you can probably assume that you get some path around that hill, but this costs increased training time</li>
+</ul>
+
+<h3 id="basic-algorithms">Basic Algorithms</h3>
+
+<ul>
+<li>We have already seen gradient descent (walk downhill in the direction of the gradient) and stochastic gradient descent (make an estimate of the gradient by sampling, and walk downhill in that estimated direction)</li>
+<li>For SGD, the learning rate is an important parameter.  Previously we have thought of this as fixed, but in practice it is gradually decreased over time; write $\epsilon_k$ for the $k$th iteration
+
+<ul>
+<li>The necessity of reducing the learning rate is due to the noise coming from the size-$m$ minibatch estimate for the gradient (it is not necessary for true gradient descent)</li>
+<li>In practice, it is common to decay the learning rate linearly until some iteration $\tau$, then leave it constant after that</li>
+<li>Choosing the (initial, say) learning rate is an art.  Too small and learning will take too long, too big and it will be unstable</li>
+</ul></li>
+<li>To study the convergence rate of an optimisation algorithm, it is common to measure the <em>excess error</em> $J(\mathbf{\theta}) - \min_{\mathbf{\theta}} J(\mathbf{\theta})$, the amount by which the current cost function exceeds the minimum possible cost.  Generally, these are bounded by something like $O(1/\sqrt{k})$ or $O(1/k)$, with $k$ being the number of iterations.  Batch does better than stochastic theoretically, but the constants are important here and stochastic is generally better IRL</li>
+<li>SGD can sometimes be slow, <em>momentum</em> is a method to accelerate learning.  It maintains an exponentially weighted moving average of previous gradients and moves in the combined direction
+
+<ul>
+<li>It helps solve two problems:  ill-conditioned Hessians, and the variance coming from SGD</li>
+<li>There is a parameter $\alpha$ controlling how much weight we give to previous gradients (we move along a velocity vector $\mathbf{v}_t = \alpha \mathbf{v}_{t-1} - \epsilon \mathbf{g}$.  $\alpha$ can be adapted over time as well.  Common (initial) choices are $\alpha = 0.5$, $\alpha = 0.9$, and $\alpha = 0.99$</li>
+<li>Physical intuition: $\mathbf{\theta}$ behaves like the coordinates of a particle experience a force due to gravity (moving it downhill in the direction of the gradient) and a force due to drag (we choose vicuous drag, i.e. linear feedback; it converges nicely).  $\epsilon$ is like the strength of the gravitational force, $\alpha$ is like the strength of the drag force</li>
+</ul></li>
+<li>In standard momentum, you compute the gradient at the starting point, before applying the velocity.  In <em>Nestorov momentum</em>, you first move direction $\alpha$ along the velocity then compute the gradient</li>
+<li>Initial point for training is important (affects whether learning well converge at all, stability of convergence, etc.).  But we don&rsquo;t really know any good principled strategies for picking initial points</li>
+<li>Probably the only thing you can say for sure is that the initial point must break symmetry between different units (input units with same path extruding from them must receive different input values, else the units will be treated the same forever and there&rsquo;s no point in having both).  Nothing complicated needed to ensure this, just pick initial point at random and you&rsquo;re almost surely fine</li>
+<li>Scale of the initial weights (i.e., large or small numbers): large is good because more symmetry-breaking hence avoiding redundant units; large is bad because potential for numerical instability</li>
+<li>Regularisation will probably be forcing the weights to be small in some sense.  After some renormalisation, in many cases the regularisation can be effectively expressing a prior that the final parameters should be close to the initial parameters</li>
+<li>Rough heuristic for scale: take initial weights of a fully connected layer with $m$ inputs and $n$ outputs by sampling from $U\left(-\sqrt{\frac{6}{m+n}}, \sqrt{\frac{6}{m+n}}\right)$</li>
+<li><em>Sparse initialisation</em>: each unit is initialised to have exactly $k$ non-zero weights.  This counteracts the effect of dense initialisation where in a large layer (with $m$ inputs) the effect of any unit becomes small.  Downside is it expresses a strong prior, and it can take a long time to recover from a bad prior</li>
+<li>When computational resources allow it, can treat the initial scale of the weights as a hyperparameter search problem</li>
+<li>Setting the initial value of the biases (the $\mathbf{b}$ in $\mathbf{w}\mathbf{x} + \mathbf{b}$) is easier
+
+<ul>
+<li>If looking at the bias for an output unit, then you probably want to set the bias to ensure you get the correct marginal statistics for the problem overall (e.g., classification vector $\mathbf{c}$ specifying the probabilities, set $\mathbf{b}$ s.t. $\text{softmax}(\mathbf{b}) = \mathbf{c}$</li>
+<li>Can also set the biases to be away from zero (avoiding saturation), or to ensure participation of dependent units in the network (example from LSTM network)</li>
+</ul></li>
+<li>In general, most approaches for setting weights/biases/hyperparamters involves some amount of specifying a constant, and some amount of random guessing/search.  An alternative, discussed later in the book, is to set up an auxilary machine learning problem for this</li>
+</ul>
+
+<h3 id="algorithms-with-adaptive-learning-rates">Algorithms with Adaptive Learning Rates</h3>
+
+<ul>
+<li>Learning rate is clearly an important parameter at learning time.  A blanket fixed learning rate, moving the same amount along each axis on each step, has obvious problems.  Momentum is one way to solve this, but it introduces another hyperparameter.  An alternative is an <em>adaptive learning rate</em> algorithm</li>
+<li><em>AdaGrad</em> adapts the learning rate of all model parameters by accumulating the norms of previous gradients $\mathbf{g}$ into $\mathbf{r}$, and taking the update step $(\Delta\mathbf{\theta})_i = \frac{\epsilon}{\delta + \sqrt{r_i}} g_i$, where $\delta$ is a small positive parameter (something like $10^{-7}$) for numerical stability
+
+<ul>
+<li>This has good theoretical properties for <em>convex</em> optimisation</li>
+<li>For training DNNs, the accumulation of squared gradients from the beginning can result in premature and excessive decrease in effective learning rates</li>
+</ul></li>
+<li><em>RMSProp</em> changes AdaGrad by switching the accumulating gradient in to an exponentially weighted moving average of previous gradients
+
+<ul>
+<li>This is more suited to nonconvex optimisation (in nonconvex optimisation, you probably don&rsquo;t want to keep a history of the weird area of random fluctuations you spent dozens of ticks in, before you finally escpaed on got to something that is actually a local minimum)</li>
+<li>This can be combined with (Nestorov) momentum: apply the interim update (step based on previous velocity), compute the gradient at the interim point, accumulate the gradient (into an exponentially weighted moving average), compute the velocity update (based on drag and gravity, but gravity is now scaled by the accumulating gradient), and apply the position update</li>
+<li>This is empirically good, is one of the go-to optimisation methods</li>
+</ul></li>
+<li><em>Adam</em> (coming from &ldquo;adaptive movements&rdquo;)
+
+<ul>
+<li>It is a variation on RMSProp with momentum (the momentum is applied differently)</li>
+<li>It also includes bias corrections to the estimates of the first-order moments (the momentum term) and the second-order moments, to account for their initialisation at the origi</li>
+<li>Concretely, we keep track of first and second order moment variables $\mathbf{s}$ and $\mathbf{t}$ (initially zero).  The algorithm is then
+
+<ul>
+<li>Sample a minibatch and compute a gradient estimate at the current point</li>
+<li>Update our moment estimates $\mathbf{s} \leftarrow \rho_1 \mathbf{s} + (1-\rho_1)\mathbf{g}$ and $\mathbf{t} \leftarrow \rho_2 \mathbf{t} + (1-\rho_2) \mathbf{g} \circ \mathbf{g}$</li>
+<li>Correct biases: $\widehat{\mathbf{s}} = \frac{\mathbf{s}}{1-\rho_1^t}$ (where $t$ is the number of ticks elapsed), and similarly for $\mathbf{t}$</li>
+<li>Compute update: $(\Delta\mathbf{\theta})_i = -\epsilon \frac{\widehat{s}_i}{\sqrt{\widehat{r}_i} + \delta}$</li>
+</ul></li>
+<li>Modulo the bias correction, this is basically RMSProp with non-Nestorov momentum.  The bias correction means fixes the potential for RMSProp to have high bias in the second order momentum estimate early in training; as a result, Adam is generally robust to the initial choice of hyperparameters</li>
+</ul></li>
+<li>SGD, SGD with momentum, RMSProp, RMSProp with momentum, and Adam are all popular choices for optimisation algorithm.  There isn&rsquo;t really single best here though, just need to play around with it</li>
+</ul>
+
+<h3 id="approximate-second-order-models">Approximate Second Order Models</h3>
+
+<ul>
+<li>For simplicity restrict attention to empiral risk $$J(\mathbf{\theta}) = \mathbb{E}_{(\mathbf{x}, y) \sim \widehat{p}_{\text{data}}(\mathbf{x}, y)} \left[L(f(\mathbf{x}; \mathbf{\theta}), y)\right],$$
+though it&rsquo;s straightforward to generalise to more general objective functions (e.g. with a regularisation term)</li>
+<li>Most widely used second order method is Newton&rsquo;s method.  This works by taking a second order approximation around $\mathbf{\theta}_0$, $$J(\mathbf{\theta}) \approx J(\mathbf{\theta}_0) + (\mathbf{\theta} - \mathbf{\theta}_0)^{\intercal} \nabla_{\mathbf{\theta}} J(\mathbf{\theta}_0) + \frac{1}{2} (\mathbf{\theta}-\mathbf{\theta}_0)^{\intercal} H (\mathbf{\theta} - \mathbf{\theta}_0)$$, then solving for the critical point of this approximation and making the update $$\mathbf{\theta}^* = \mathbf{\theta}_0 - H^{-1} \nabla_{\mathbf{\theta}} J(\mathbf{\theta}_0)$$
+
+<ul>
+<li>If a function is locally quadratic, this is an exact route to the local minimum</li>
+<li>If the function is convex but not quadratic, it can be iterated to give a path to the minimum</li>
+</ul></li>
+<li>In general Newton&rsquo;s method is attracted to points that are critical (it&rsquo;s looking at critical points of second order approximation), which may well be saddle.  In high dimension situations like DL, there are lots of saddle points so this is bad.  Saddle points occur when the Hessian is not positive definite</li>
+<li>Can force the Hessian to be diagonal by adding a regularisation term, work with $H + \alpha \mathbf{I}$.  Obviously this only works well if the negative eigenvalues of the Hessian are small (if the negative eigenvalues are large, then we need very large $\alpha$, and this completely the dominates the Hessian term and remove the point of doing this)</li>
+<li>There is a big computational cost to using the Hessian in this way as well: the inverse Hessian has to be computed at every step</li>
+<li>An alternative is <em>conjugate gradients</em>.  Imagine an algorithm taking steps along negative gradient, and doing line search along the negative gradient to determine optimal step size.  Conjugate gradients starts from the observation that, applying this to a (locally) quadratic function, the sequence of step directions $\mathbf{d}_t$ we take are sequentially orthogonal, which is a somewhat inefficient way to walk</li>
+<li>For conjugate gradients, we instead take a step satisfying $\mathbf{d}_t = \nabla_{\mathbf{\theta}} J(\mathbf{\theta}) + \beta_t \mathbf{d}_{t-1}$, where $\beta_t$ controls how much of the previous direction we should retain</li>
+<li>We say two gradients are conjugate if $\mathbf{d}_{t}^{\intercal} H \mathbf{d}_{t-1} = 0$</li>
+<li>For a quadratic surface, the taking conjugate step directions ensures that the gradient along the previous direction does not increase in magnitude.  For a quadratic function in a $k$-dimensional parameter space, we therefore (with optimal step lengths) would take at most $k$ steps</li>
+<li>For conjugate gradients, we can get the $\beta_t$ by computing $H(\mathbf{\theta})$, but this is expensive aga0n</li>
+<li>Two alternatives using gradients alone are Fletcher&ndash;Reeves and Polak&ndash;Ribiere</li>
+<li>To adapt to non-quadratic cases, use <em>nonlinear conjugate gradients</em>, which occassionally reset the conjugation process and takes a free step along an unaltered gradient</li>
+<li>Seems to work reasonably in practice.  There also exist other alterations specifically aimed at NNs</li>
+<li>The <em>Broyden&ndash;Fletcher&ndash;Goldfrab&ndash;Shanno algorithm</em> is an adaption of Netwon&rsquo;s method.  Instead of computing $H^{-1}$ at every step (which is expensive), we maintain a cheaper alternative $M_t$.  Like conjugate gradients, once it knows the direction it does line search on that direction to determine the optimal step size
+
+<ul>
+<li>Advantage over conjugate gradients is that it is less insistent that the line search be done perfectly</li>
+<li>Disadvantage is memory cost of maintaining $M$</li>
+<li>There is a limited memory alternative</li>
+</ul></li>
+</ul>
+
+<h3 id="optimisation-strategies-and-meta-algorithms">Optimisation Strategies and Meta-Algorithms</h3>
+
+<ul>
+<li>There are a bunch of optimisation tricks/tweaks that can be applied to various optmisation algorithms</li>
+<li><em>Batch normalisation</em> is a method of adaptive reparameterisation
+
+<ul>
+<li>When we are updated in the parameters in a DNN, we compute the gradient of each parameter individually but only actually apply the update in bulk after we&rsquo;ve processed each parameter.  Since all parameters depend on each other, by the time we apply the update, we&rsquo;ve moved the goalposts</li>
+<li>As a simple example, consider a linear change of functions, where we know what we want to tweak the output a bit.  Following back-propogation, we can find that optimal update to each parameter in the chain.  The updates in the penultimate layer contribute order one terms to the output, the updates in the antepenultimate layer contribute order two terms to the output, and so on.  To work out the correct step size to take to tweak the output layer, correctly accounting for all the contributions from the $n$ previous layers, we need an order $n$ method.  This is obviously not feasible for DNNs</li>
+<li>Batch normalisation can be applied to any input or hidden layer in a NN.  Let $H$ be a minibatch of activations of the layer to normalise, with the activations of each example appearing the a row of the matrix (i.e., a design matrix).  Then $$(H&rsquo;)_{i,j} = \frac{H_{i,j}-\mathbf{\mu}_j}{\mathbf{\sigma}_j}$$ is the normalisation of $H$, where $\mathbf{\mu}$ is the vector of means (sample means based on this batch I assume?) of each unit, and $\mathbf{\sigma}$ is the standard deviation (maybe numerically stabilised away from zero).  We replace $H$ with $H&rsquo;$ and the rest of the network operates on it in the same way</li>
+<li>The obvious way to apply this is a stop-the-world renormalisation after each gradient descent step.  The downside is that often the learning algorithm will propose some change the increases the mean/variance, then the renormalisation will undo this change</li>
+<li>Instead, you can actually <em>include</em> the renormalisation inside your backprop computational graph, which means that the learning algorithm and the renormalisation will now work together.  This is much more efficient</li>
+<li>To actually apply a model which includes renormalisation, you need to know $\mathbf{\mu}$ and $\mathbf{\sigma}$, so at training time you should accumulate a moving average of these over all the minibatches you had</li>
+<li>The output layer of a NN is required to do a linear transformation.  It would make sense to remove all linear relationships between previous layers, and isolate all the linear work to the output.  Batch normalisation is in the same ballpark as this.  It is technically possible to remove all linear interactions in previous layers, but it is more expensive than batch normalisation</li>
+<li>In practice it is common to replace $H$ with $\mathbf{\gamma}H&rsquo; + \mathbf{\beta}$.  The learned parameters $\mathbf{\gamma}$ and $\mathbf{\beta}$ allow this layer to have any mean and variance.  In contrast to using the mean and variance inherent in $H$, though, these mean and variance are solely the opinion of the layer producing them.  The learning dynamics are therefore different (and presumably better)</li>
+</ul></li>
+<li><em>Coordinate descent</em> is when you minimise $f(\mathbf{x})$ by iterating through indices $x_i$ and minimising $f$ as a function of $x_i$ at each step.  Block coordinate descent is when you do the same thing with groups of coordinates</li>
+<li>This is definitely a good idea when the variables can be separated in such a way that you get a collection of easy optimisation problems
+
+<ul>
+<li>E.g. in sparse coding, we must find $H$ and $W$ minimising $$J(H, W) = \sum_{i,j} |H_{i,h}| + \sum_{i,j} \left(X - W^{\intercal} H\right)_{i,j}^2$$  This is not convex overall, but if we optimise $H$ and $W$ separately each subproblem is</li>
+</ul></li>
+<li>This is definitely a bad idea when the value of one variable strongly influences the optimal value of another variable.  It will still work, but it can potentially be very slow</li>
+<li><em>Polyak averaging</em> proposes to do $t$ iterations of gradient descent (say), then backtrack and step according to the average.  This has good theoretical properties for convex problems and seems to work reasonably in practice for nonconvex ones.  For nonconvex you probably want to do an exponentially weighted moving average</li>
+<li><em>Pretraining</em> is when you try a separate problem as a first step.  E.g., you make a simple model try to solve the task, then make the task more complicated.  Or you make a model solve an easier task, then move on to the actual task.  And so on.</li>
+<li><em>Greedy algorithm</em>: break the problem up into components, solve each one indivudally.  The combined solution may not be optimal for the combined problem, but maybe it&rsquo;s good enough, and at the least you&rsquo;ve found a good initial starting point</li>
+<li>There are lots of techniques combining these ideas.  One is <em>greedy supervised pretraining</em>, which is breaking supervised problems into easier supervised problems (then greedily solving those as pretraining)
+
+<ul>
+<li>One way is to have subproblems involving only a subset of the layers in the final model.  E.g. imagine $n$ layers, and subproblems for training only the first $m$ layers for $2 \leq m \leq n$, stacking the training problem for the $m$th layer on the $(m-1)$th layer in such a way that it doesn&rsquo;t waste any work</li>
+</ul></li>
+<li>Transfer learning is related to supervised pretraining as well. Think stacking a domain-specific layer on top of ResNet.  You train the domain-specific layers by themselves at first; maybe you also <em>fine-tune</em> to tweak some layers of ResNet jointly with the new part of the network</li>
+<li>Another idea is <em>FitNets</em>.  Train a short (5 layers) and fat network which is easy and quick; call this <em>teacher</em>.  Then create a new long (something like 11-19 layers) and thin network (<em>student</em>).  Normally the student network would be difficult to train, but if you give it the additional task of predicting the values of the 3rd layer of the teacher network, apparently this makes things better
+
+<ul>
+<li>Very roughly, I imagine this works because the early layers of a DNN would benefit from having something force them towards a reasonable value.  I imagine there&rsquo;s a risk in a very deep network for the early layers to lose track of reality</li>
+<li>Experimentally, seems to help</li>
+</ul></li>
+<li>We&rsquo;ve talked a lot about improving the optimisation algorithsm.  Obviously it would be nice if the models themselves were easier to optimise.  In practice, using better models rather than better optimisation algorithms is where we have had wins recently (SGD with momentum has been around since the 80s and is still widely used)</li>
+<li>More precisely, modern NNs &ldquo;reflect a <em>design choice</em> to use linear transformations between layers and activation functions that are differentiable a.e., with significant slope in large parts of their domain&rdquo;.  (Relativel) modern innovations (LSTM, ReLUs, &hellip;) move toward linear functions and away from the sigmoids of the past.</li>
+<li>There is another idea which gives gradient hints to early layers in the network (like we did for FitNet) - this is to add auxilary heads (attach outputs to checkpoints in the model) and train these alongside the final output</li>
+<li><em>Continuation methods</em>: construct a series of cost functions $J^{(0)}, J^{(1)}, &hellip;, J^{(n)}=J$ such that $J^{(i-1)}$ is &ldquo;easier&rdquo; than $J^{(i)}$.  By &ldquo;easier&rdquo;, we mean that the cost function is better behaved, so if you drop a point at random then it should be more likely that it has a reasonable path to an optimal solution for $J^{(i-1)}$ than it does for $J^{(i)}$.  Then you optimise each cost function in turn, using the optimal alue of one as the starting point for the next.
+
+<ul>
+<li>One way to construct a sequence is by &ldquo;blurring&rdquo; the initial cost function: $$J^{(i)}(\mathbf{\theta}) = \mathbb{E}_{\mathbf{\theta}&rsquo; \sim \mathcal{N}(\mathbf{\theta}&lsquo;; \mathbf{\theta}, \sigma^{(i)2})} J(\mathbf{\theta}&lsquo;)$$</li>
+<li>Intuitively, a nonconvex function becomes convex when blurred, but if you don&rsquo;t blur it too much you might retain information about a global minimum</li>
+<li>This is a pretty loose intuition and can obviously break down in a bunch of ways</li>
+</ul></li>
+<li><em>Curriculum learning</em>: planning a learning process to begin by learning simple concepts and progress to more complex concepts.  Roughly in the same ballpark as continuation methods (with a series of cost functions)
+
+<ul>
+<li>Has been used on a bunch of NL and CV tasks</li>
+<li>References a paper saying that stochastic cirriculum (random mix of easy/hard topics, but getting progressively harder on average) performs better than a deterministic progression</li>
+</ul></li>
 </ul>
 
   
