@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
   
   
   
@@ -18,7 +18,10 @@
   
   
   
-  <link rel="stylesheet" href="https://mjdickson.dev/css/base.min.d4fe357a8259c8923245491edad0ca7d654c6fef2ba82c24d1592569f883529f.css" integrity="sha256-1P41eoJZyJIyRUke2tDKfWVMb&#43;8rqCwk0VklafiDUp8=" crossorigin="anonymous">
+  
+  
+  
+  <link rel="stylesheet" href="https://mjdickson.dev/css/base.min.f952525d4b9098cc9e2045c0a2498fa05cd925822779ea81381f47b20ac42f5c.css" integrity="sha256-&#43;VJSXUuQmMyeIEXAokmPoFzZJYIneeqBOB9HsgrEL1w=" crossorigin="anonymous">
   
   
 </head>
@@ -31,15 +34,15 @@
       </li>
       
       <li class="Banner-item">
-        <a class="Banner-link u-clickable" href="https://mjdickson.dev/posts/">Posts</a>
+        <a class="Banner-link u-clickable" href="https://mjdickson.dev/about/">About</a>
+      </li>
+      
+      <li class="Banner-item">
+        <a class="Banner-link u-clickable" href="https://mjdickson.dev/post/">Posts</a>
       </li>
       
       <li class="Banner-item">
         <a class="Banner-link u-clickable" href="https://mjdickson.dev/research/">Research</a>
-      </li>
-      
-      <li class="Banner-item">
-        <a class="Banner-link u-clickable" href="https://mjdickson.dev/about/">About</a>
       </li>
       
     </ul>
@@ -52,10 +55,7 @@
         
 
 <article>
-  <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$']]}});</script>
-<script type="text/javascript" async src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-
-<header class="Heading">
+  <header class="Heading">
   <h2 class="Heading-title">
     <a class="Heading-link u-clickable" href="https://mjdickson.dev/posts/dual-booting-arch-and-windows/" rel="bookmark">Dual booting Arch and Windows</a>
   </h2>
@@ -74,23 +74,22 @@ installation and install whatever Linux distribution is my favourite at
 that point. This time, for gaming reasons, I decided to keep Windows and
 dual boot Linux. I&rsquo;ve been happily using Arch Linux for a couple of
 years now, so I decided to use that as my Linux distribution.</p>
-
 <p>The Arch installation process is mostly straightforward, if a bit time
 consuming. The one exception is that using <code>fdisk</code> to manage partitions
 can be a bit intimidating for inexperienced users like myself. This is
 especially true when you&rsquo;re trying to keep a working UEFI Windows
 installation in the background, as this involves a number of partitions
 in itself.</p>
-
 <p>To save myself any worries, I decided to do the following:</p>
-
 <ul>
-<li><p>Install Ubuntu alongside Windows, using the GUI that provides for
-partitioning to sort out my hard disk.</p></li>
-
-<li><p>Overwrite that Ubuntu installation with an Arch Linux installation</p></li>
+<li>
+<p>Install Ubuntu alongside Windows, using the GUI that provides for
+partitioning to sort out my hard disk.</p>
+</li>
+<li>
+<p>Overwrite that Ubuntu installation with an Arch Linux installation</p>
+</li>
 </ul>
-
 <p>This worked pretty well. Installing Ubuntu is of course easy. Installing
 Arch in an already existing partition is also pretty straightforward.
 The only pain point I can remember is that I wasn&rsquo;t sure if I would have
@@ -100,11 +99,9 @@ using didn&rsquo;t know where to look for configuration. I couldn&rsquo;t work o
 how to boot in to Arch from there so I just booted from the USB again
 and mounted the partition I was trying to install on as usual. I
 <code>chroot</code>ed in again and set up GRUB correctly, and it worked after that.</p>
-
 <p>Since I had to run through a couple of times, I got very used to
 connecting to my WIFI network from the command line. The commands to do
 this are</p>
-
 <pre><code>iw dev # to get the name of the network interface, e..g `wlp1s0` 
 rfkill unblock wifi # may be unnecessary for you
 ip link set wlp1s0 up
@@ -113,9 +110,7 @@ wpa_supplicant -B -D wext -i wlp1s0 -c /etc/wpa_supplicant.conf
 iw wlp1s0 # should look happy
 dhclient wlp1s0 # get ip address; hangs if wrong password above
 ping www.archlinux.org
-</code></pre>
-
-<p>I had to do that a few times, which was one of the things that slowed me
+</code></pre><p>I had to do that a few times, which was one of the things that slowed me
 down most during the installation. Other than that things went fairly
 smoothly!</p>
 

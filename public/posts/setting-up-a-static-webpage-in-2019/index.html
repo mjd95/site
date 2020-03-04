@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
   
   
   
   <title>
     
-    Setting up a static web page in 2019 | Martin Dickson
+    On static web pages | Martin Dickson
     
   </title>
   <link rel="canonical" href="https://mjdickson.dev/posts/setting-up-a-static-webpage-in-2019/">
@@ -18,7 +18,10 @@
   
   
   
-  <link rel="stylesheet" href="https://mjdickson.dev/css/base.min.d4fe357a8259c8923245491edad0ca7d654c6fef2ba82c24d1592569f883529f.css" integrity="sha256-1P41eoJZyJIyRUke2tDKfWVMb&#43;8rqCwk0VklafiDUp8=" crossorigin="anonymous">
+  
+  
+  
+  <link rel="stylesheet" href="https://mjdickson.dev/css/base.min.f952525d4b9098cc9e2045c0a2498fa05cd925822779ea81381f47b20ac42f5c.css" integrity="sha256-&#43;VJSXUuQmMyeIEXAokmPoFzZJYIneeqBOB9HsgrEL1w=" crossorigin="anonymous">
   
   
 </head>
@@ -31,15 +34,15 @@
       </li>
       
       <li class="Banner-item">
-        <a class="Banner-link u-clickable" href="https://mjdickson.dev/posts/">Posts</a>
+        <a class="Banner-link u-clickable" href="https://mjdickson.dev/about/">About</a>
+      </li>
+      
+      <li class="Banner-item">
+        <a class="Banner-link u-clickable" href="https://mjdickson.dev/post/">Posts</a>
       </li>
       
       <li class="Banner-item">
         <a class="Banner-link u-clickable" href="https://mjdickson.dev/research/">Research</a>
-      </li>
-      
-      <li class="Banner-item">
-        <a class="Banner-link u-clickable" href="https://mjdickson.dev/about/">About</a>
       </li>
       
     </ul>
@@ -52,12 +55,9 @@
         
 
 <article>
-  <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$']]}});</script>
-<script type="text/javascript" async src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-
-<header class="Heading">
+  <header class="Heading">
   <h2 class="Heading-title">
-    <a class="Heading-link u-clickable" href="https://mjdickson.dev/posts/setting-up-a-static-webpage-in-2019/" rel="bookmark">Setting up a static web page in 2019</a>
+    <a class="Heading-link u-clickable" href="https://mjdickson.dev/posts/setting-up-a-static-webpage-in-2019/" rel="bookmark">On static web pages</a>
   </h2>
   
   <time datetime="2019-09-23T07:26:00&#43;01:00">
@@ -67,9 +67,7 @@
 </header>
 
   <p>I was recently setting up a website for a small <a href="https://funtastictravels.business">travel blog</a>.  We wanted a reasonable looking static site, content supplied via markdown files, hosted on a custom domain and supporting TLS.  I&rsquo;m not sure what the quickest way to do this is in 2019, but it probably involves Netlify.  I went down a Hugo / Google Domains / App Engine route, and it was still pretty slick.</p>
-
 <p>First the static site generator.  There are <em>so many</em> static site generators out there, but I&rsquo;d never found one I liked.  In fact I wrote my own one in bash for the site you&rsquo;re currently reading:</p>
-
 <pre><code>rm -rf www 
 mkdir -p www/posts
 
@@ -103,20 +101,15 @@ popd
 
 mkdir -p www/css
 cp css/style.css www/css/style.css
-</code></pre>
-
-<p>The less said about this the better.</p>
-
+</code></pre><p>The less said about this the better.</p>
 <p>This time, I tried <a href="https://gohugo.io/">Hugo</a> again, and it was easier to get something I liked the look of than I remember.  I followed the <a href="https://gohugo.io/getting-started/quick-start/">quickstart</a> and found a sufficiently frivolous <a href="https://themes.gohugo.io/theme/papercss-hugo-theme/">theme</a>, and had something which looked like what I wanted running on localhost within 5 minutes.</p>
-
-<p>I got sidetracked at this point by the <code>hugo deploy</code> <a href="https://gohugo.io/hosting-and-deployment/hugo-deploy/">command</a> which I could use to push my static site to a GCS bucket.  I found two issues (probably both surmountable) with a purely bucket-based site though:
-  * Visiting <code>http://mysite.com</code> should show you the HTML in <code>http://mysite.com/index.html</code>, but this behaviour didn&rsquo;t come for free from the bucket and I wasn&rsquo;t sure how to configure it
-  * Adding TLS support to bucket-based site seems to require a few <a href="https://geekflare.com/gcs-site-over-https/">extra hops</a></p>
-
+<p>I got sidetracked at this point by the <code>hugo deploy</code> <a href="https://gohugo.io/hosting-and-deployment/hugo-deploy/">command</a> which I could use to push my static site to a GCS bucket.  I found two issues (probably both surmountable) with a purely bucket-based site though:</p>
+<ul>
+<li>Visiting <code>http://mysite.com</code> should show you the HTML in <code>http://mysite.com/index.html</code>, but this behaviour didn&rsquo;t come for free from the bucket and I wasn&rsquo;t sure how to configure it</li>
+<li>Adding TLS support to bucket-based site seems to require a few <a href="https://geekflare.com/gcs-site-over-https/">extra hops</a></li>
+</ul>
 <p>Instead I decided to push to App Engine.  App Engine is pretty flexible, but it is in particular capable of doing static bucket-backed sites with a regex-based router in front, and offers easy TLS setup.  This is pretty much exactly what I needed.</p>
-
 <p>First focus on deploying a site with correct routing.  If I generate my Hugo site:</p>
-
 <pre><code> &gt; cd mysite
  &gt; hugo
  &gt; ls public
@@ -142,10 +135,7 @@ safari-pinned-tab.svg
 sitemap.xml
 site.webmanifest
 tags
-</code></pre>
-
-<p>then there&rsquo;s only a few things I actually care about in there.  Specifically, I want the <code>index.html</code>, the <code>posts</code> directory and all its contents (an <code>index.html</code> and, for each post, a file <code>posts/mypost/index.html</code>), and finally the <code>css</code> directory.  I wrote an <code>app.yaml</code> file that would capture everything I cared about and do the expected redirects:</p>
-
+</code></pre><p>then there&rsquo;s only a few things I actually care about in there.  Specifically, I want the <code>index.html</code>, the <code>posts</code> directory and all its contents (an <code>index.html</code> and, for each post, a file <code>posts/mypost/index.html</code>), and finally the <code>css</code> directory.  I wrote an <code>app.yaml</code> file that would capture everything I cared about and do the expected redirects:</p>
 <pre><code>runtime: python27
 api\_version: 1
 threadsafe: true
@@ -165,14 +155,9 @@ handlers:
 
 - url: /css
   static\_dir: public/css
-</code></pre>
-
-<p>To get my page running on the appspot domain, it&rsquo;s now just a case of <code>gcloud app deploy</code>.</p>
-
+</code></pre><p>To get my page running on the appspot domain, it&rsquo;s now just a case of <code>gcloud app deploy</code>.</p>
 <p>Now focus on the custom domain and TLS.  I bought the domain I wanted from Google Domains and verified it using <code>gcloud domains verify</code>.  To actually use this for my static site, I simply had to run <code>gcloud app domain-mappings create</code>.  This gave me back a bunch of A/AAAA records which I added within the Google Domains UI.  (If I understand correctly, these DNS records point at the app engine load balancer, and since I have created a mapping for my URL to my app engine instance the load balancer knows to reverse proxy incoming requests to my app engine instance.)  The nicest part about all of this is that the TLS certificate generation was automatic at this point, so after a short delay for the DNS propagation and certificate generation I had my web page running with TLS on my own domain like I wanted.</p>
-
 <p>I&rsquo;ve used app engine before, but I was impressed how easy this integrates with custom domains and TLS.  The whole process was well under an hour, and would have been even less if I hadn&rsquo;t spent some time playing around with the direct-from-bucket idea.</p>
-
 <p>I was also pleased enough with Hugo that I decided to retire my bash static site generator and port my personal web page.  Maybe that means I&rsquo;m more likely to write stuff now :)</p>
 
   

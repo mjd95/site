@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="generator" content="Hugo 0.58.3" />
+  <meta name="generator" content="Hugo 0.66.0" />
   
   
   
@@ -18,7 +18,10 @@
   
   
   
-  <link rel="stylesheet" href="https://mjdickson.dev/css/base.min.d4fe357a8259c8923245491edad0ca7d654c6fef2ba82c24d1592569f883529f.css" integrity="sha256-1P41eoJZyJIyRUke2tDKfWVMb&#43;8rqCwk0VklafiDUp8=" crossorigin="anonymous">
+  
+  
+  
+  <link rel="stylesheet" href="https://mjdickson.dev/css/base.min.f952525d4b9098cc9e2045c0a2498fa05cd925822779ea81381f47b20ac42f5c.css" integrity="sha256-&#43;VJSXUuQmMyeIEXAokmPoFzZJYIneeqBOB9HsgrEL1w=" crossorigin="anonymous">
   
   
 </head>
@@ -31,15 +34,15 @@
       </li>
       
       <li class="Banner-item">
-        <a class="Banner-link u-clickable" href="https://mjdickson.dev/posts/">Posts</a>
+        <a class="Banner-link u-clickable" href="https://mjdickson.dev/about/">About</a>
+      </li>
+      
+      <li class="Banner-item">
+        <a class="Banner-link u-clickable" href="https://mjdickson.dev/post/">Posts</a>
       </li>
       
       <li class="Banner-item">
         <a class="Banner-link u-clickable" href="https://mjdickson.dev/research/">Research</a>
-      </li>
-      
-      <li class="Banner-item">
-        <a class="Banner-link u-clickable" href="https://mjdickson.dev/about/">About</a>
       </li>
       
     </ul>
@@ -52,10 +55,7 @@
         
 
 <article>
-  <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$']]}});</script>
-<script type="text/javascript" async src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-
-<header class="Heading">
+  <header class="Heading">
   <h2 class="Heading-title">
     <a class="Heading-link u-clickable" href="https://mjdickson.dev/posts/local-wildcard-dns/" rel="bookmark">Using wildcard DNS locally</a>
   </h2>
@@ -74,28 +74,24 @@ client knows which URL to dial - something like
 providing a resolution service, and there is a wildcard DNS entry
 <code>*.&lt;static-part&gt;.com</code> which points to that service. The remaining
 resolution is done with an etcd lookup.</p>
-
 <p>I sometimes need to mimic this flow locally, so I need a way of sending
 all requests under a given domain to some service running on my own
 machine.</p>
-
 <p>Unfortunately, one cannot just add wildcard entries to <code>/etc/hosts</code>, so
 a bit more work is needed. One way to solve this is to run a local DNS
 server and have it &ldquo;re-implement <code>/etc/hosts</code>, allowing wildcards&rdquo;. This
 is actually pretty easy in Go, using the fantastic
 <a href="https://github.com/miekg/dns">miekg/dns</a> library for DNS. I&rsquo;ll now walk
 through that with a simple example.</p>
-
 <p>First let&rsquo;s create a backend HTTP server (<code>example/server.go</code>):</p>
-
 <pre><code>package main
-
+        
         import (
             &quot;fmt&quot;
             &quot;log&quot;
             &quot;net/http&quot;
         )
-
+        
         func main() {
             http.HandleFunc(&quot;/&quot;, func (w http.ResponseWriter, r *http.Request) {
                 fmt.Fprintf(&quot;hello!\n&quot;)
@@ -103,27 +99,25 @@ through that with a simple example.</p>
             log.Fatal(http.ListenAndServe(&quot;:8080&quot;, nil))
         }
 </code></pre>
-
 <p>Let&rsquo;s pretend that this is running at <code>foo.bar</code>, and create a client for
 dialing it (<code>example/client.go</code>):</p>
-
 <pre><code>package main
-
+        
         import (
             &quot;fmt&quot;
             &quot;io/ioutil&quot;
             &quot;net/http&quot;
         )
-
+        
         func main() {
             url := &quot;http://foo.bar:8080&quot;
-
+        
             resp, err := http.Get(url)
             if err != nil {
                 panic(err)
             }
             defer resp.Body.Close()
-
+        
             body, err := ioutil.ReadAll(resp.Body)
             if err != nil {
                 panic(err)
@@ -131,20 +125,15 @@ dialing it (<code>example/client.go</code>):</p>
             fmt.Println(string(body))
         }
 </code></pre>
-
 <p>In one terminal, do <code>go run example/server.go</code>. In another terminal, do
 <code>go run example/client.go</code>. Oops! That didn&rsquo;t work. To fix it, we need
 to add the following line to <code>/etc/hosts</code>:</p>
-
 <pre><code>127.0.0.1    foo.bar
 </code></pre>
-
 <p>Do <code>go run example/client.go</code> again all is good.</p>
-
 <p>Now suppose we change <code>example/client.go</code> to dial a random URL:</p>
-
 <pre><code>package main
-
+        
         import (
             &quot;fmt&quot;
             &quot;time&quot;
@@ -152,17 +141,17 @@ to add the following line to <code>/etc/hosts</code>:</p>
             &quot;math/rand&quot;
             &quot;net/http&quot;
         )
-
+        
         func main() {
             rand.Seed(time.Now().UnixNano())
             url := fmt.Sprintf(&quot;http://foo-%d.bar&quot;, rand.Intn(100))
-
+        
             resp, err := http.Get(url)
             if err != nil {
                 panic(err)
             }
             defer resp.Body.Close()
-
+        
             body, err := ioutil.ReadAll(resp.Body)
             if err != nil {
                 panic(err)
@@ -170,7 +159,6 @@ to add the following line to <code>/etc/hosts</code>:</p>
             fmt.Println(string(body))
         }
 </code></pre>
-
 <p>We would like this request to still be handled by <code>example/server.go</code>,
 but of course <code>go run example/client.go</code> won&rsquo;t work right now. In fact,
 we can&rsquo;t really know what the URL is going to be in advance, so we can&rsquo;t
@@ -179,18 +167,14 @@ Unfortunately, we can&rsquo;t simply add <code>*.bar</code> to <code>/etc/hosts<
 because wildcard entries are not supported. We <em>could</em> fix it by adding
 entries for each of <code>foo-1.bar</code>, <code>foo-2.bar</code>, &hellip;, <code>foo-100.bar</code>, but no
 one wants to do that!</p>
-
 <p>Instead, we will implement just enough of a DNS server to deal with
 outgoing traffic under some wildcard domains we specify in a hosts file.
 First we create the file <code>hosts</code> with content</p>
-
 <pre><code>127.0.0.1    *.bar
 </code></pre>
-
 <p>Then create the DNS server <code>dns_server.go</code>:</p>
-
 <pre><code>package main
-
+        
         import (
                 &quot;bufio&quot;
                 &quot;fmt&quot;
@@ -198,9 +182,9 @@ First we create the file <code>hosts</code> with content</p>
                 &quot;strings&quot;
                 &quot;github.com/miekg/dns&quot;
         )
-
+        
         const wildcardHostsFilename = &quot;hosts&quot;
-
+        
         func main() {
                 dns.HandleFunc(&quot;.&quot;, handler)
                 server := &amp;dns.Server{Addr: &quot;:53&quot;, Net: &quot;udp&quot;}
@@ -208,7 +192,7 @@ First we create the file <code>hosts</code> with content</p>
                         panic(err)
                 }   
         }
-
+        
         func handler(w dns.ResponseWriter, r *dns.Msg) {
                 names := getNamesFromMessage(r)
                 for _, name := range names {
@@ -222,35 +206,29 @@ First we create the file <code>hosts</code> with content</p>
                                 w.WriteMsg(m)
                         }
                 }
-
+        
                 defaultMux := dns.NewServeMux()
                 defaultMux.ServeDNS(w, r)
         }
-
+        
         // snip
 </code></pre>
-
 <p>This uses the external dependency <code>miekg/dns</code>, so you&rsquo;ll want to do
 <code>go get github.com/miekg/dns</code>. Since the DNS server runs on a
 privileged port, you&rsquo;ll need <code>sudo</code> to run it. You&rsquo;ll probably want to
 forward your environment variables (particularly the <code>GOPATH</code>) to the
 <code>sudo</code> environment, so you can run this with
 <code>sudo -E bash -c 'go run dns_server.go</code>.</p>
-
 <p>The only thing that remains is to actually use this DNS server, so add
 an entry to the top of your <code>/etc/resolv.conf</code> with</p>
-
 <pre><code>nameserver 127.0.0.1
 </code></pre>
-
 <p>Now with both <code>dns_server.go</code> and <code>example/server/server.go</code> running,
 you can run <code>example/client/client.go</code> again and it will work, no matter
 what URL is randomly generated!</p>
-
 <p>See <a href="http://www.github.com/mjd95/local-wildcard-dns">the code</a> on GitHub
 for the full example.</p>
-
-<p></div></p>
+<!-- raw HTML omitted -->
 
   
 
