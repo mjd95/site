@@ -1,5 +1,5 @@
 ---
-title: "Setting up a static web page in 2019"
+title: "On static web pages"
 date: 2019-09-23T07:26:00+01:00
 ---
 I was recently setting up a website for a small [travel blog](https://funtastictravels.business).  We wanted a reasonable looking static site, content supplied via markdown files, hosted on a custom domain and supporting TLS.  I'm not sure what the quickest way to do this is in 2019, but it probably involves Netlify.  I went down a Hugo / Google Domains / App Engine route, and it was still pretty slick.

@@ -1,5 +1,5 @@
 ---
-title: "Deep Learning Notes Part 1"
+title: "Notes on Deep Learning (Goodfellow et. al)"
 date: 2019-09-24T08:08:00+01:00
 ---
 I've been reading the book [Deep Learning (Goodfellow et. al)](https://www.deeplearningbook.org/) recently.  I'm doing this with a view to filling in gaps about my deep learning knowledge, as most of my learning in the past has been from random blogs posts and the occassional research paper.
@@ -673,3 +673,140 @@ though it's straightforward to generalise to more general objective functions (e
   * _Curriculum learning_: planning a learning process to begin by learning simple concepts and progress to more complex concepts.  Roughly in the same ballpark as continuation methods (with a series of cost functions)
     - Has been used on a bunch of NL and CV tasks
     - References a paper saying that stochastic cirriculum (random mix of easy/hard topics, but getting progressively harder on average) performs better than a deterministic progression
+
+# Chapter 9 - Convolutional Neural Networks
+
+## Introduction
+
+  * Roughly, CNNs are a kind of NN for processing data that has a known grid-like topology.  Most famous for images (a 2D grid of pixels), but also time series (a 1D grid of samples)
+  * More precisely, CNNs are just NNs that use convolution in place of matrix multiplication in one of their layers
+
+## The Convolution Operator
+
+  * Motivated by giving example of smoothing a noisy function $x(t)$ using a weight $w(t)$ by forming the convolution $$s(t)=\int x(a)w(t−a)da$$
+  * We normally write this is $s(t)=(x\*w)(t)$. We call the first argument ($x$ here) the input, and we all the second argument ($w$ here) the kernel. The output is sometimes referred to as the feature map
+  * Also discrete version: $$s(t)=(x\*w)(t)=\sum\_{a=-\infty}^{\infty}x(a)w(t−a)$$
+  * In machine learning, the input is usually a tensor (multi-dimensional array) of features, and the kernel is usually a tensor of parameters to be adapted by the learning algorithm
+  * We often use convolutions over more than one axis at a time. E.g., if the input is a 2D greyscale image $X$, then we probably want a 2D kernel $K$, and our convolution is $$S(i,j)=(X\*K)(i,j)=\sum\_m \sum\_n X(m,n)K(i−m,j−n)$$
+  * The sum can obviously be rewritten in a bunch of ways. One is to _flip_ the kernel relative to the input $$(X\*K))(i,j)=\sum\_m \sum\_n X(i−m,j−n)K(m,n)$$
+  * There is also the closely-related cross correlation, $$S′(i,j)=\sum\_m \sum\_n X(i+m,j+n)K(m,n)$$. This only differs from convolution by a trivial change to $K$
+  * Neither of these is seriously different from direct convolution. It may be more numerically convenient to write it one way or the other. But at the end of the day, they are either literally the same or differ only in a trivial change to $K$, which the learning will be smart enough to realise anyway
+  * Picture of convolution being applied in 2D. It’s what you would expect, though it does the notable thing of restricting to positions where the kernel fits entirely within the image (so it shrinks the input on axis $i$ by one less than the length of $w$ along axis $i$)
+  * Doing a convolution is a bit like multiplying by a matrix except you use a different formula. You can actually represent it as matrix multiplication using things like Toeplitz matrices, block circulant matrices, etc.
+
+## Motivation
+
+  * Uses three important ideas: sparse interactions, parameter sharing, and equivariant representations
+  * When you use matrix multiplication in a NN, you are using different parameters in the mapping between a given unit in layer $m$ and a given unit in layer $m+1$. In particular, typically there is a full mesh of interactions between units (though I guess you can regularize away from this)
+  * Sparse interactions: In a convolutional layer, a given unit in layer $m$ will only interact with a small number of units in layer $m+1$ (proportional to the size of the convolutional filter). Think of sliding a 2x2 convolutional filter over a 2D array of pixels - a given pixel appears in at most 4 outputs in the next layer
+  * Obviously this is much cheaper computationally as well
+  * Parameter sharing: Again coming from the difference between multiplying by a matrix and applying a convolution. In matrix multiplication, a specific element $w\_{i,j}$ of $W$ is only relevant in the mapping between $x\_i$ and $y\_j$. In a convolutional network, the coefficients of the convolution are shared through the mapping of (pretty much) every element of $x$ to every element of $y$
+  * The parameter sharing doesn’t save any computational cost, but it saves a bit of memory
+  * Nice practical example with a picture of a dog and the application of a convolution which looks at the difference between two adjacent pixels on a line (i.e., applies $(−1,1)$ as a convolution). This recognises vertical edges, and is enough to give an outline of the dog already
+  * Equivariance: Say a function $f$ is equivariant to $g$ if $f(g(x))=g(f(x)$). (Slightly weird definition of equivariance, but I guess it’s fine for these applications). Note that convolution is equivariant to any function $g$ which translates (shifts) the input
+  * For image data, think of function shifting image data one pixel to the right. Convolution is equivariant to that (modulo boundary issues)
+  * For time series data, shift in time, convolution doesn’t care.
+  * Convolution “creates a map of where certain features appear in the input”. This is useful for when we know that some function of a small number of neighbouring datapoints is useful when applied throughout the image (e.g. edge detection in images, spike detection in time series, …)
+
+## Pooling
+
+  * Convolution is typically applied as:
+    - Input
+    - Goes to a convolution (the actual affine transformation)
+    - Goes to a detector stage (apply the nonlinearity, e.g. ReLU)
+    - Goes to pooling stage (applies some further modifaction)
+    - Goes to output
+  * We typically call all three stages doing work the "convolutional layer". However, other terminologies would only call the first layer the "convolutional layer" and would distinguish a "detector layer" and a "pooling layer"
+  * A pooling function replaces the outputs at a certain location with a summary statistic of the nearby outputs. E.g., max pooling reports the maximum output within a rectangular region
+  * Pooling helps make the representation approximately invariant to small translations in the input (e.g. shift one pixel to the right)
+  * This is a useful thing to aim for if you care more about whether some feature is present rather than exactly where it is
+  * The use of pooling can be regarded as an infinitely strong prior that the function the layer learns must be invariant to small translations. If this assumption is correct, then it’s efficient to have the prior built in
+  * Can use max pooling to learn invariance. Example with three filters designed to detect different orientations of the digit "5". Pool the responses of these three filters with a max pooling unit and it no longer which one of them activated
+  * Pooling can also be used to downsample. Roughly, if you are grouping together $k$ input units, then you can probably get away with only $1/k$ of the output units for many applications
+  * Pooling can be used to handle inputs of varying size. E.g. if you are going to do classification on images, probably the core of your network assumes a fixed number of inputs. If you have to classify an image that is not of exactly the correct size, you could use pooling to replace areas with summary statistics to produce something of the correct size
+
+## Convolution and Pooling as an Infinity Strong Prior
+
+  * Can think of a convolutional network as being similar to a fully connected network, but having an infinitely strong prior saying that:
+    - The weights for one hidden unit are identical to its neighbour at the same layer
+    - The weights are all zero outside of a spatially contiguous region associated with that hidden unit
+  * As a corollary, this imposes a prior that the learned function should know about only local interactions and be equivariant to translation
+  * Similarly, pooling imposes a prior that the learned function be invariant to translation
+  * If the assumptions baked in to the prior are not valid, this will underfit
+
+## Variants of the Basic Convolution Function
+
+  * In practice, the convolution used in NNs is not the mathematical discrete convolution, but differs slightly. We now describe them
+  * We normally parallelise, so the operation done in a NN contains many convolutions in parallel. Convolution with a single kernel can extract only one kind of feature, and we usually want to extract many
+  * The input is normally a grid of vector values (rather than a grid of real values) as well (e.g. each RGB vector at each pixel)
+  * For images we normally think of everything in terms of 3D tensors: two dimensions index into the spatial position, one dimension indexes in to the channel values
+  * Write $V\_{i,j,k}$ for the input, $Z\_{i,j,k}$ for the output, and $K\_{i,j,k,l}$ for the kernel, so that $$Z\_{i,j,k}=\sum\_{l,m,n}V\+{l,j+m−1,k+n−1}K\+{i,j,m,n}$$ (This uses $1$-based indexing; in $0$-based indexing you can omit the $−1$s)
+  * Can downsample to only retain one in $s$ of the output pixels, $$Z\_{i,j,k}=c(K,V,s)\_{i,j,k}=\sum\_{l,m,n}V\_{l,s(j−1)+m,s(k−1)+n}K\_{i,j,m,n}$$ We call $s$ the stride. Here it is the same across both axes, but it could easily be different
+  * There is the question of zero-padding at the boundary of the images as well.
+    - No padding at all (called a valid convolution in MATLAB). This shrinks the output image by the size of the kernel minus one
+    - Just enough zero padding to keep the output of the same size (called a same convolution in MATLAB). No effect on the size, but pixels near the centre have more influence than pixels at the edge, as pixels near the edge are visited few times
+      - Add enough zero padding so that every pixel from the original image is visited $k^2$ times (a full convolution in MATLAB). This increases the size of the output image
+  * Usually the best option is somewhere between valid and same
+  * Unshared convolution (or locally connected layer):
+    - Have a formula like $Z\_{i,j,k}=\sum\_{l,m,n}V\_{l,j−1+m,k−1+n}W\_{i,j,k,l,m,n} with a 6-tensor $W$. The indices into $W$ are $i$ (output channel), $j$ and $k$ (output row/column), $l$ (input channel), $m$ and $n$ (row and column offset in the input)
+   - Giving the extra freedom to vary the value as $j$ and $k$ varies means there is nothing shared, so this doesn’t really look like passing the same “detecting filter” over the image
+   - This pattern is useful when we know that each feature should be a function of a small part of space, but we don’t have a prior that the same feature should occur over all of space
+  * Can also restrict which output channels are influenced by a given input channel
+  * Tiled convolutions
+    - Compromise between a convolution and an unshared convolution. Learn a set of filters that we cycle through as we move through space
+    - If $t$ is the number of filters we cycle through, then the formula is $$Z\_{i,j,k}=\sum\_{l,m,n}V\_{l,j−1+m,k−1+n}K\_{i,l,m,j%t+1,k%t+1}$
+    - If $t=1$ this is convolution, if $t$ is the size of the output this is unshared convolution
+  * For training a convolutional network, we’re probably going to need three types of operation: convolution itself, backprop from outputs to weights, and backprop from outputs to inputs (the latter is used for autoencoders, apparently). We give a simple 2D examples of these operations:
+    - Suppose want to train a convolutional network that uses a strided convolution $c(K,V,s)$, and the loss function we want to minimise is $J(V,K)$
+    - For forward propogation, we use $c$ itself to output $Z$
+    - During backprop, we will receive a tensor $G$ s.t. $$G\_{i,j,k}=\frac{\partial}\partial Z\_{i,j,}} J(V,K).$$ To train the network, we need to compute the derivatives w.r.t. the weights in the kernel, $$\frac{\partial}J(V,K)}{\partial K\_{i,j,kl}} = \sum\_{m,n}G\_{i,m,n}V\_{j,s(m−1)+k,s(n−1)+l}
+    - If this is not the bottom layer, we need to compute the gradient with respect to $V$ as well in order to propogate back to the next stage. For this, we have the formula $$\frac{\partial J(V,K)}{\partial V\_{i,j,k}}=\sum\_{l,m;s(l−1)+m=}j\sum\_{n,p;s(n−1)+p=k}\sum\_q K\_{q,i,m,p}G\_{q,l,n}$$
+  * Autoencoder networks are feedforward networks trained to copy their input to their output, e.g. PCA copying $x$ to a reconstruction $W^{\intercal}Wx$
+  * Transposes often appear in autoencoders. If the autoencoder has a convolutional layer, we want an efficient way to do that transpose. Unsurprisingly, it basically turns out to be the same formulas as above
+  * Quick comment about biases: you might think that any bias added to the convolution should follow the same pattern as the convolution itself (full convolution, locally connected, tiled, …). But you can also just train a separate bias at each position. This is less satistically efficient, but might be a good idea to account for non-uniformities in the input
+
+## Structured Outputs
+
+  * Convolutional networks can output a high-dimensional structured object (as well as the class / real-value we’re used to from classification / regression). Typically it’s just a tensor
+  * E.g. could output a tensor $S$ where $S\_{i,j,k}$ is the probability that the pixel at position $(j,k)$ belongs to class $i$
+  * Doesn’t seem particularly interesting?
+
+## Data Types
+
+  * Data used in a CNN usually consists of several channels, with each channel being the observation of a different quantity at some point in space (or time). Some examples:
+    - Audio waveform: 1D single channel. Data is just the amplitude of the waveform at even time step.
+    - Skeleton animation data: 1D multi-channel. Data is the measurement of various angles between limbs, evolving over time.
+    - Audio data that has been preprocessed with FT: 2D single channel. Data is the frequency and time
+    - Color image data. 2D multi-channel. Data is the RGB values at every 2D position.
+    - Volumetric data. 3D single channel. Imagine something coming from a CT scan.
+    - Color video data. 3D multi-channel. RGB values for 2D images changing over time.
+  * One advantage of convolution networks is that they are not sensitive to the exact size of the input. E.g. think of classifying images: a weight matrix approach would require all training and test data to be the same size, but a convolutional approach allows more freedom
+  * Of course, you need an assumption that you’re still working on fundamentally the same problem (e.g. detecting the same thing over a longer period of time)
+
+## Efficient Convolution Algorithms
+
+  * Since CNNs can have millions of units, you want both a good implementation and a good algorithm for computing convolutions
+  * Can compute the convolution by applying a FT then multiplying in the frequency domain (this is the convolution theorem). This is more efficient for some problem sizes (FFT is $O(N\logN)$, convolution is $O(N^2)$, but the sweet spot will depend on the constants).
+  * If the kernel is separable (can be expressed as an outer product of vectors) then the convolution decomposes and this speeds things up
+
+## Random or Unsupervised Features
+
+  * Typically in a CNN the number of features going in to the output layer is pretty small because there is a lot of pooling going on. Most of the training cost is therefore learning the features
+  * When performing supervised learning, need a full pass forward and back through the network. Can try to speed this up by not doing supervised training
+  * Three basic approachs to getting kernels to select features without supervised training are:
+    - Initialise them randomly. Works surpisingly well with pooling etc. to force robustness. Can choose a bunch of different random kernels then just train the final layer, then take the best network overall. Apparently this does reasonably well.
+    - Hand-craft them (e.g. hand-crafted edge detector, etc.)
+    - Learn kernels with an unsupervised criterion (discussed in more detail later)
+  * Another option is to use greedy layer-wise pretraining (train the first layer in isolation, train the second layer in isolation given the features of the first, etc.). Canonical example is the convolutional deep belief network
+
+## The Neuroscientific Basis for Convolutional Networks
+
+  * CNNs are inspired by neuroscience. Hubel and Wiesel did a lot of work on mammalian vision and got a Nobel Prize for it. In one experiment, they studied cat neurons in isolation and saw that neurons in the early visual system responded strongly to certain patterns of light and didn’t respond at all to other patterns
+  * In a simplified view, the “early visual system” lives in V1, the primary visual cortex
+  * Pipeline from outside world to V1 can be thought of just transmission and detection (eye focuses on to light-sensor on the retina, passes through the lateral geniculate nucleus, hits V1)
+  * A convolutional layer captures three properties of V1:
+    - Spatially defined features: light hitting the lower half of the retina only activates half of V1
+    - Lots of simple cells: activated by a small spatially localized receptive field
+    - Lots of complex cells: simple cells with inavariance built in
+  * We know most about V1, but generally people believe the same is true for other parts of the visual system (which would be other layers of the neural network). This leads people to believe (roughly) in things like “grandmother cells” (activated by seeing your grandmother in any pose) deeper in the visual system. Some evidence for this in the medial temporal lobe (but the concept seems to go beyond just image recognition)
+  * Closest analogue to a CNNs last layer is the inferotemporal cortex (IT). There is V1, V2, V4, then IT. This seems like a fairly simple feedforward network, at least for the first 100ms of a human viewing an obejct. After that there is a bunch of complicated feedback going on
