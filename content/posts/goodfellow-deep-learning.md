@@ -6,11 +6,12 @@ I've been reading the book [Deep Learning (Goodfellow et. al)](https://www.deepl
 
 Since this is a fairly long book and I am constrained in the amount of time I can dedicate to reading it, I've tried an experiment with keeping quick markdown notes of what I've read.  This means that when I come back to reading after a short break, I can remember the salient points of where I was by a quick skim over my notes.
 
-In the unlikely situation that my notes could be useful to anyone else, I though I'd post them here.  Due to my background, I skipped the mathematical prelude before Chapter 5.  This posts covers the first half of my reading, Chapters 5-8, which is roughly the "groundwork" before we look at some specific kinds of neural nets (CNNs and RNNs) and research applications.
+In the unlikely situation that my notes could be useful to anyone else, I though I'd post them here.  Due to my background, I skipped the mathematical prelude before Chapter 5.
 
 ## Chapter 5 - Machine Learning Basics
 
 ### Learning Algorithms
+
   * A computer program is said to learn from experience $E$ to do task $T$, measured by performance measure $P$, if its performance at $T$, as measured by $P$, is improved with $E$
   * Some examples of tasks you might want to perform:
     - Classification: learn a function $f: \mathbb{R}^n \to \{1,...,k\}$, or output a probability distribution over the classes, 
@@ -108,7 +109,7 @@ In the unlikely situation that my notes could be useful to anyone else, I though
   * Write $\text{Var}(\widehat{\theta})$ for the variance (variance over the empirical distribution again), and write $\text{SE}(\widehat{\theta})$ for the standard error (positive square root of the variance)
   * E.g. Standard error of sample mean is $\text{SE}(\widehat{\mu}\_m) = \sqrt{\text{Var}(\frac{1}{m}\sum\_{i=1}^m x^{(i)})} = \sigma/\sqrt{m}$, where $\sigma$ is the true standard error.
     - We don't _know_ $\sigma$ though.  We can attempt to get an _estimate_ for the standard error of the sample mean by using an estimate for $\sigma$
-    - The two we've seen (square root of sample variance, square root of unbiased sample variance) - both result in biased estimates
+    - The two we've seen (square root of sample variance, square root of unbiased sample variance) both result in biased estimates
     - The square root of the unbiased sample variance is used in practice, it works okay for large $m$
   * Use of standard error in ML:  
     - Have some model capable of making predictions.  Look at some of the errors it makes on the test set, and compute the sample mean.  
@@ -136,7 +137,7 @@ In the unlikely situation that my notes could be useful to anyone else, I though
   * E.g. suppose I have $m$ samples from a Bernoulli distribution with parameter $\theta$, but I don't know $\theta$ and I want to estimate it instead.  For a particular value of $\theta$, I know that $p(x; \theta) = \theta^{x}(1-\theta)^{1-x}$.  So the thing I'm trying to argmax is $\sum\_{i=1}^m \log (\theta^{x\_m}(1-\theta)^{1-x\_m}) = \sum\_{i=1}^m x\_m \log(\theta) + (1-x\_m)\log(1-\theta)$.  The derivative of this is $\sum\_{i=1}^m \frac{x\_m}{\theta} - \frac{1-x\_m}{1-\theta}$ which is extremal when $\sum\_{i=1}^m(1-\theta)x\_m - (1-x\_m)\theta = 0$, i.e. $m\theta\_{\text{ML}} = \sum\_{i=1}^m x\_m$, i.e. at the sample mean.  This can be checked to be a maximum.
   * Equivalent point of view: MLE is the estimate that moves $p(\mathbf{x}; \theta)$ closest to the empirical distribution $\widehat{p}\_{\text{data}}$ in the KL sense.  (A short calculation shows that attempting to minimise the KL divergence boils down to maximising the above expectation over the empirical distribution.)  
   * In a supervised setting, can do the same thing with conditional probabilities.  Here $\theta\_{\text{ML}} = \text{argmax}\_{\theta} \sum\_{i=1}^m \log p(\mathbf{y}^{(i)} | \mathbf{x}^{(i)}; \theta)$
-  * E.g. linear regression.  Previously we just searched for functions of the form $y = \mathbf{w}^T \mathbf{x}$, and decided to pick $\mathbf{w}$ that minimised the mean square error on the training set.  Now think of the linear regression as outputting a conditional distribution $p(y | \mathbf{x})$ with Gaussian noise, i.e. we define $p(y|\mathbf{x}) = \mathcal{N}(y; \widehat{y}(\mathbf{x}; \mathbf{w}), \sigma^2)$.  A short calculation shows that maximising the log-likelihood of this is equivalent to minimising the the MSE on the training set as before
+  * E.g. linear regression.  Previously we just searched for functions of the form $y = \mathbf{w}^{\intercal} \mathbf{x}$, and decided to pick $\mathbf{w}$ that minimised the mean square error on the training set.  Now think of the linear regression as outputting a conditional distribution $p(y | \mathbf{x})$ with Gaussian noise, i.e. we define $p(y|\mathbf{x}) = \mathcal{N}(y; \widehat{y}(\mathbf{x}; \mathbf{w}), \sigma^2)$.  A short calculation shows that maximising the log-likelihood of this is equivalent to minimising the the MSE on the training set as before
   * MLE is consistent, under the condition that there is precisely one value of $\theta$ s.t. $p\_{\text{data}} = p(.; \theta)$
   * Consistency says nothing about the rate of convergence.  That is measured by statistical efficiency, which is quantified for parameter estimates by the MSE (over the data-generating distribution) between the estimated and the true parameter.  Cramer--Rao says that the MLE has the lowest MSE amongst all consistent estimators, so in this sense MLE is the asymptotically best estimator
   * In practice, with small amounts of training data, maybe use regularization strategies to get biased versions of MLE which have lower variance
@@ -158,7 +159,7 @@ In the unlikely situation that my notes could be useful to anyone else, I though
 
 ### Supervised Learning Algorithms 
 
-  * Logisitic regression: force a linear function $\mathbf{x} \mapsto \mathbf{\theta}^T \mathbf{x}$ to take values in $(0,1)$ by composing with the logistic sigmoid $\sigma(x) = 1/(1+e^{-x})$, and interpret the result as a probability.  Now you can use a linear function to do classification: $p(y=1|\mathbf{x},\mathbf{\theta}) = \sigma(\mathbf{\theta}^T\mathbf{x})$.  No closed form solution for the optimal weights, instead search using gradient descent
+  * Logistic regression: force a linear function $\mathbf{x} \mapsto \mathbf{\theta}^T \mathbf{x}$ to take values in $(0,1)$ by composing with the logistic sigmoid $\sigma(x) = 1/(1+e^{-x})$, and interpret the result as a probability.  Now you can use a linear function to do classification: $p(y=1|\mathbf{x},\mathbf{\theta}) = \sigma(\mathbf{\theta}^T\mathbf{x})$.  No closed form solution for the optimal weights, instead search using gradient descent
   * Support vector machines:
     - Have $f(\mathbf{x}) = b + \sum\_i \alpha\_i k(\phi(\mathbf{x}), \phi(\mathbf{x}^{(i)}))$, where $\phi$ is some feature mapping and $k$ is some kernel.  Simplest case would be $\phi$ is the identity and $k$ is the dot product, but probably we're thinking of $\phi$ mapping in to some infinite-dimensional space
     - Most commonly used kernel is the Gaussian kernel, $k(\mathbf{u}, \mathbf{v}) = \mathcal{N}(\mathbf{u}-\mathbf{v}; 0, \sigma^2 \mathbf{I})$, corresponds to a dot-product in an infinite dimensional space
@@ -235,11 +236,11 @@ In the unlikely situation that my notes could be useful to anyone else, I though
   * Motivation: Consider trying to use a linear model (e.g. linear regression, logistic regression) in a case where there is a non-linear relationship between the input and the target.  Previously we would try to do some preprocessing with a function $\phi$
     - This could be hand-crafted, but any attempt is going to be very specialized to the problem/domain
     - Could use a very generic feature mapping like the RBF kernel, but this often does not generalize well (this optimises for finding a locally smooth solution, rather than digging in to the problem at hand)
-    - In DL you _learn_ $\phi$.  Have $y = f(\mathbf{x};\mathbf{\theta}, \mathbf{w}) = \phi(\mathbf{x};\mathbf{\theta})^T \mathbf{w}$.  Have parameters $\mathbf{\theta}$ used to learn $\phi$ from a family of functions, and $\mathbf{w}$ for the actual linear regression part.  This is a feedforward neural network with one hidden layer.  This makes the optimisation problem harder (no longer convex) but we can use numerical methods
+    - In DL you _learn_ $\phi$.  Have $y = f(\mathbf{x};\mathbf{\theta}, \mathbf{w}) = \phi(\mathbf{x};\mathbf{\theta})^{\intercal} \mathbf{w}$.  Have parameters $\mathbf{\theta}$ used to learn $\phi$ from a family of functions, and $\mathbf{w}$ for the actual linear regression part.  This is a feedforward neural network with one hidden layer.  This makes the optimisation problem harder (no longer convex) but we can use numerical methods
 
 ### Learning XOR
 
-  * The target function is $y = f^\*(\mathbf{x})$ where $\mathbf{x}$ is a binary pair and $f^\*$ is `XOR`.  Our model provides a function $y = f(\mathbf{x}; \theta)$ and our learning algorithm will adopt the parameters to give a good approximation to $f^\*$.
+  * The target function is $y = f^\*(\mathbf{x})$ where $\mathbf{x}$ is a binary pair and $f^\*$ is `XOR`.  Our model provides a function $y = f(\mathbf{x}; \theta)$ and our learning algorithm will adapt the parameters to give a good approximation to $f^\*$.
     - There is no statistical generalisation here, we can just try to get a perfect score on the training set $X = ((0,0), (0,1), (1, 0), (1, 1))$
     - To make things simple, we model it as a regression problem with MSE loss function, so $J(\mathbf{\theta}) = \frac{1}{4} \sum\_{\mathbf{x} \in X} (f^\*(\mathbf{x})-f(\mathbf{x};\mathbf{\theta}))^2$
     - If we choose a linear model $f(\mathbf{x}; \mathbf{w}, b) = \mathbf{x}^T \mathbf{w} + b$ and minimise in the usual way with the normal equations, we end up with $\mathbf{w}=\mathbf{0}$ and $b=\frac{1}{2}$.  Clearly a linear function cannot learn `XOR`
@@ -291,13 +292,13 @@ In the unlikely situation that my notes could be useful to anyone else, I though
 
 ### Hidden Units
 
-  * Hidden units are often not differentiable at a small number of points.  Inherent numerical approximation, the isolatedness, and the fact that they usuall have a left and right derivative means that this isn't really a problem when working with the gradient
-  * Use the general notation: hidden units take input $\mathbf{x}$, compute affine tranformations $\mathbf{z} = \mathbf{W}^T\mathbf{x} + \mathbf{v}$, and then apply some non-linear function elementwise to $\mathbf{z}$
+  * Hidden units are often not differentiable at a small number of points.  Inherent numerical approximation, the isolatedness, and the fact that they usually have a left and right derivative means that this isn't really a problem when working with the gradient
+  * Use the general notation: hidden units take input $\mathbf{x}$, compute affine tranformations $\mathbf{z} = \mathbf{W}^T\mathbf{x} + \mathbf{b}$, and then apply some non-linear function elementwise to $\mathbf{z}$
   * ReLU use the activation function $g(z) = \max(0, z)$.  One drawback is they cannot learn (via gradient-based methdos) on examples for which their activation is zero
     - Generalize to $g(z, \mathbf{\alpha})\_i = \max(0, z\_i) + \alpha\_i \min(0, z\_i)$ to capture some this stuff
     - Setting $\alpha\_i = -1$ gives _absolute value retification_.  This is used in object recognition, where you want to reflect (lol) invariance to polarity reversal
     - _Leaky ReLU_ sets $\alpha\_i = 0.01$ or something else small
-    - _Pamarametric ReLU_ learns $\mathbf{\alpha}$
+    - _Parametric ReLU_ learns $\mathbf{\alpha}$
     - _Maxout units_ are another generalisation, $g(z)\_i = \max\_{j \in \mathbb{G}^{(i)}} z\_j$, where $\mathbb{G}^{(i)}$ is the $i$th block when we split all the indices into blocks of $k$.  There's a fairly long discussion about this but I think it's just because the author invented them :)
   * Can use either the logistic sigmoid $g(z) = \sigma(z)$ or the hyperbolic tangent $g(z) = \tanh(z)$ as activation functions.  (Note $\tanh(z) = 2\sigma(2z)-1$).
     - Sigmoid units are probably not a good idea as a hidden unit.  The gradient saturates away from zero quite dramatically, and the only way we got away with using them as output layers was by using a log-likelihood cost function to undo the exponentiation
@@ -327,14 +328,14 @@ In the unlikely situation that my notes could be useful to anyone else, I though
 
 ### Backpropagation and Other Differentiation Algorithms
 
-  * Giving an analytical expression for the gradient is straightforward, but actually computing it is expensive.  Backpropagation gives a cheaper was to evaluate the gradient numerically
+  * Giving an analytical expression for the gradient is straightforward, but actually computing it is expensive.  Backpropagation gives a cheaper way to evaluate the gradient numerically
   * Backpropagation only refers to how to compute the gradient, to get a learning algorithm on top of that you will need some gradient-based optimisation, like stochastic gradient descent
   * Fairly general, can compute $\nabla\_\mathbf{x} f(\mathbf{x}, \mathbf{y})$ for an arbitrary function $f$, where $\mathbf{x}$ is a set of variables that we want to differentiate along, and $\mathbf{y}$ are additional variables that we don't care about differentiating along
   * Talk about neural networks in terms of computation graphs:
     - A node in the graph represents a variable (could be scalar, vector, matrix, tensor, ...)
     - Have _operations_ which (WLOG) output a single variable (which, as above, could be a vector)
     - If $y$ is obtained by applying an operation to $x$, draw a directed edge from $x$ to $y$ (possibly annotating to say what the operation actually was)
-  * Chain rule for vector-valued functions: if $\mathbf{x} \in \mathbb{R}^m$, $\mathbf{y} = g(\mathbf{x}) \in \mathbb{R}^n$, and $z = f(\mathbf{y})$, then $\nabla\_\mathbf{x} z = \left(\frac{\partial \mathbf{y}}{\partial \mathbf{x}} \right)^T \nabla\_\mathbf{y} z$.  I.e., the gradient wrt $\mathbf{x}$ can be obtained by multiplying a Jacobian by the gradient wrt $\mathbf{y}$
+  * Chain rule for vector-valued functions: if $\mathbf{x} \in \mathbb{R}^m$, $\mathbf{y} = g(\mathbf{x}) \in \mathbb{R}^n$, and $z = f(\mathbf{y})$, then $\nabla\_\mathbf{x} z = \left(\frac{\partial \mathbf{y}}{\partial \mathbf{x}} \right)^{\intercal} \nabla\_\mathbf{y} z$.  I.e., the gradient wrt $\mathbf{x}$ can be obtained by multiplying a Jacobian by the gradient wrt $\mathbf{y}$
   * Let $\mathbf{X}$ be a tensor, and write $\nabla\_\mathbf{X} z = (\nabla\_\mathbf{X} z)\_i$ for the tensor gradient, where $i$ is now a multi-index
   * Chain rule for tensor-valued functions: $\nabla\_\mathbf{X} z = \sum\_j (\nabla\_\mathbf{X} \mathbf{Y}\_j) \frac{\partial z}{\partial \mathbf{Y}\_j}$.  Here the variable $j$ will be range over all the ways you can index into $\mathbf{Y}$
   * This gives us the way to write down an algebraic expression for the gradient of a scalar wrt any node (=variable) in the computational graph, but it is expensive to evaluate
@@ -346,7 +347,7 @@ In the unlikely situation that my notes could be useful to anyone else, I though
   * Back propagation, simple case:
     - Assume all variables scalars, want to compute derivative of $u^{(n)}$ wrt $u^{(1)},...,u^{(n\_i)}$.
     - Run forward propogation to compute the activations
-    - Initialise $\text{gradtable}$, we will set $\text{gradtable}(u^{(i)})$ equal to the compute value of $\frac{\partial u^{(n)}}{\partial u^{(i)}}$
+    - Initialise $\text{gradtable}$, we will set $\text{gradtable}(u^{(i)})$ equal to the computed value of $\frac{\partial u^{(n)}}{\partial u^{(i)}}$
     - First set $\text{gradtable}(u^{(n)}) = 1$
     - Then for $j=n-1,...,1$, compute $\frac{\partial u^{(n)}}{\partial u^{(j)}} = \sum\_{i \text{ s.t. } j \in \text{Pa}(u^{(i)})} \frac{\partial u^{(n)}}{\partial u^{(i)}} \frac{\partial u^{(i)}}{\partial u^{(j)}} = \sum\_i \text{gradtable}(u^{(i)}) \frac{\partial u^{(i)}}{\partial u^{(j)}}$
     - When done, return the grad table
@@ -361,7 +362,7 @@ In the unlikely situation that my notes could be useful to anyone else, I though
     - For $k=l,...1$:
       - First replace the gradient $\mathbf{g}$ with the derivative of the pre-nonlinearity action $\nabla\_{\mathbf{a}^{(k)}} J = \mathbf{g} \cdot f'(\mathbf{a}^{(k)})$.
       - Compute the gradient on the weights and biases: $\nabla\_{\mathbf{b}^{(k)}} J = \mathbf{g} + \lambda \nabla\_{\mathbf{b}^{(k)}} \Omega(\theta)$, $\nabla\_{\mathbf{W}^{(k)}} J = \mathbf{g} \mathbf{h}^{(k-1)T} + \lambda \nabla\_{\mathbf{W}^{(k)}} \Omega(\theta)$
-      - Backpropagate one stage: replace $\mathbf{g}$ with $\nabla\_{h^{(k-1)}} = {}^{t}\mathbf{W}^{(k)} \mathbf{g}$
+      - Backpropagate one stage: replace $\mathbf{g}$ with $\nabla\_{h^{(k-1)}} = \mathbf{W}^{(k)}{\intercal} \mathbf{g}$
     - At the end of the day, we have the gradients of $J$ wrt all the $\mathbf{W}^{(k)}$ and the $\mathbf{b}^{(k)}$, so we can do descent
   * One approach to backpropagation in general is to take a computation graph and a set of numerical inputs to the graph, and return numerical values giving the gradient at those input values.  Call this _symbol-to-number differentiation_.  Implementations in Torch and Caffe are like this
   * Alternative is to take the computational graph and add additional nodes explaining how to compute the derivatives.  This is the approach taken by Theano and Tensorflow.  To actually evaluate, you plug your concrete inputs into the new computational graph.  One advantage of this approach is you can now compute second order derivatives by feeding in the first order derivative graph, etc.
