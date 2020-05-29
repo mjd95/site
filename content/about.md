@@ -1,12 +1,12 @@
 # About
 
-I'm a software engineer at the UK games company [Improbable](https://improbable.io/).  I spend most of my time working on our backend infrastructure.  My main focus is on monitoring performance and gameplay metrics, making heavy use of a [Prometheus](https://prometheus.io/) and [Thanos](https://github.com/improbable-eng/thanos).
+I'm a London-based software engineer at the UK games company [Improbable](https://improbable.io/). I spend most of my time working on our backend infrastructure. I've got a fair amount of experience in infrastructure and application monitoring, particularly [Prometheus](https://prometheus.io/) and [Thanos](https://github.com/improbable-eng/thanos). More recently, I've been working on infrastructure scheduling and automation as we slowly build out our own Kubernetes provider focussed on games.
     
-I generally enjoy playing around with technology.  Outside of my day job, I spend most of my computer time on machine learning.  I also have a soft spot for implementing retro video games in OpenGL.  I don't have a favourite programming language, but if I did it would be Rust.
+I generally enjoy learning about and playing around with technology. I'm trying to [blog](/posts) regularly about academic papers. Code-wise, I'm spending a lot of time with OpenGL right now, but I haven't decided if it's a game or an engine yet.
     
-Before becoming a software engineer I worked as an academic mathematician.  My research was in number theory, you can find some more details about what I worked on [here](/research).
+Before becoming a software engineer I worked as an academic mathematician. My research was in number theory, you can find some more details about what I worked on [here](/research).
 
-When I'm not at a computer, I like to console myself by taking part in endurance sports.  I haven't decided if I'm a runner or a triathlete yet, but I definitely get a kick out of both.  I'm a member of [Wimbledon Windmilers](https://windmilers.org.uk) and [Clapham Chasers](https://www.claphamchasers.co.uk/), [competing](https://thepowerof10.info/athletes/profile.aspx?athleteid=771959) for the former.
+When I'm not at a computer, I like to console myself by taking part in endurance sports. My background is in [running](https://thepowerof10.info/athletes/profile.aspx?athleteid=771959) but I'm increasingly enjoying long-course triathlon and hope one day to qualify for Kona. I'm a member of both [Wimbledon Windmilers](https://windmilers.org.uk) and [Clapham Chasers](https://www.claphamchasers.co.uk/). 我也花很多时间学习中文.
 
 You can find me online at [GitHub](https://github.com/mjd95), [LinkedIn](https://www.linkedin.com/in/martin-dickson-0a7257150/), [Strava](https://www.strava.com/athletes/4981840), and some other places where I keep an even more reticent presence.
 
