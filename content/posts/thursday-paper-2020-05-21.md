@@ -3,13 +3,13 @@ title: "Thursday Paper: Your Classifier Is Secretly An Energy Model"
 date: 2020-05-21T09:08:17+01:00
 ---
 
-I'm going to start a regularly series where I try to read a couple of academic papers per week. The plan will be that on Tuesdays I read classic computer science papers (of which I have read embarrassingly few) and on Thursdays I will read more recent machine learning papers (of which I have also read embarrassingly few). 
+I'm going to start a regularly series where I try to read a couple of academic papers per week. The plan will be that on Tuesdays I read classic computer science papers (of which I have read embarrassingly few) and on Thursdays I will read more recent machine learning papers (of which I have also read embarrassingly few). I have no formal education in either computer science of machine learning so this might be a disastrously bad idea, but I'll see how it goes.
 
 My Tuesday paper will lean towards distrbuted systems and databases, probably with a lot drawn from [this list](https://dancres.github.io/Pages/) initially.
 
 My Thursday paper will mostly be directed by what is being covered at the [London ML Paper Club Meetup](https://www.meetup.com/ML-Paper-Club/events/khjgrrybchbcc/).
 
-Due to time constraints, I'm only going to spend an hour on each paper. If this feels extremely rushed, I'll split the post over a couple of weeks.
+Due to time constraints, I'm only going to spend an hour on each paper. The goal then is really just to get a high level idea of what the paper is about, without going in to details. If this feels extremely rushed, I'll split the post over a couple of weeks.
 
 ## Introduction
 
@@ -31,7 +31,7 @@ Writing your model in this way has downsides, for example computing the denomina
 
 A classification problem with $K$ output classes normally involves a function $f:\mathbb{R}^d \to \mathbb{R}^K$ to produce _logits_, then an application of a softmax function $p\_(y|\mathbf{x}) \propto \exp(f\_{\theta}(\mathbf{x})[y])$. In this notation, $f\_{\theta}(\mathbf{x})[y]$ denotes the $y$th index of $f\_{\theta}(\mathbf{x})$.
 
-We just converted the logits to probabilities for classes using the softmax function, but another thing we can do is to define an energy based model from these. More specifically, we define $p\_{\theta}(\mathbf{x}, y) \propto \exp(f\_{\theta}(\mathbf{x})[y])$, and $E\_{\theta}(\mathbf{x}, y) = -f\_{\theta}(\mathbf{x})[y]$. We can marginalise out $y$ to get a distribution over $\mathbf{x}$, which gives us an energy based model with $E\_{\theta}(\mathbf{x}) = -\log \sum\_{y} \exp(f\_{\theta}(\mathbf{x})[y])$.
+We normally convert the logits to probabilities for classes using the softmax function, but another thing we can do is to define an energy based model from these. More specifically, we define $p\_{\theta}(\mathbf{x}, y) \propto \exp(f\_{\theta}(\mathbf{x})[y])$, and $E\_{\theta}(\mathbf{x}, y) = -f\_{\theta}(\mathbf{x})[y]$. We can marginalise out $y$ to get a distribution over $\mathbf{x}$, which gives us an energy based model with $E\_{\theta}(\mathbf{x}) = -\log \sum\_{y} \exp(f\_{\theta}(\mathbf{x})[y])$.
 
 As the authors put it, this as "a generative model hidden within every standard discriminative model". They call the output of this interpretation a Joint Energy based Model (JEM).
 

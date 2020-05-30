@@ -26,7 +26,7 @@ Paxos is apparently difficult, even for researchers. Even the simplest part, sin
 
 ## The Raft Algorithm
 
-Raft elects a leader, who is then responsible for managing the replicated log. The leader accepts log entries from clients, replicates them to other servers, and tells the other servers when it is safe to apply the log entries to their state machines. Leader election is therefore a first class concept in Raft, which we'll discuss in details.
+Raft elects a leader, who is then responsible for managing the replicated log. The leader accepts log entries from clients, replicates them to other servers, and tells the other servers when it is safe to apply the log entries to their state machines. Leader election is therefore a first class concept in Raft, which we'll discuss in detail.
 
 First some basics. A Raft cluster is a collection of servers (typically five, which could survive two failures), and any server is either a _leader_, a _follower_, or a _candidate_. In normal operations, there is one _leader_ responsible for all communication with clients, and the remaining servers are _follower_. The _candidate_ stage only comes up during leader election.
 
@@ -46,11 +46,11 @@ If a follower receives nothing within the _election timeout_, it starts an elect
   * The candidate receives a heartbeat from another server claiming to be the leader. If the heartbeat's term index is greater than or equal to the client's local version, then our candidate respects the sender as the new leader and becomes a follower. If the hearbeat's term index is smaller, then our candidate rejects this and continues as candidate.
   * There is no winner within the timeout. (For example, there is a split vote). In this case, a new term is created and the process repeats. (Without intervention, this could repeat indefinitely.)
 
-Each client chooses how long it will wait for an election at random. So even if we were going to hit the inconclusive stage this round, one of the candidates would become satisfied with that inconclusion first, get its requests out early, and would most likely become the leader next round. 
+Each client chooses how long it will wait for an election at random. So even if we were going to hit the inconclusive stage this round, one of the candidates would become frustrated with that inconclusion first, get its requests out early, and would most likely become the leader next round. 
 
 ### Log Replication
 
-The leader receives a new log entry from a client. It appends it to its own local log and then issues an `AppendEntries` call to all other cluster members. Once it is _committed_ the leader actually exectues the statement from its own log to update its state machine, and then responds to the client.
+The leader receives a new log entry from a client. It appends it to its own local log and then issues an `AppendEntries` call to all other cluster members. Once it is _committed_ (defined immenently) the leader actually exectues the statement from its own log to update its state machine, and then responds to the client.
 
 The leader decides that a log entry is committed as soon as it is replicated to a majority of servers. The leader is the authority for what has been committed and it tracks this with a high watermark index; it broadcasts this committed index widely (e.g. in heartbeats). That way, if a follower has received a log entry but does not yet know it's committed, it might learn so in a future message. Once it becomes committed, the follower updates its own state machine. The leader also updates its own state machine as new messages become committed.
 
@@ -62,7 +62,7 @@ There must be a caveat here though. The leader cannot ask a follower to delete a
 
 ### Safety
 
-Well, this is pretty simple fix. Raft imposes that only a server which has all of the committed entries from the previous terms is eligble to become leader.
+Well, this is pretty simple fix to ensure the caveat from the previous section: Raft imposes that only a server which has all of the committed entries from the previous terms is eligble to become leader.
 
 Recall that a server must get a majority of votes in order to become leader. Every committed message is on at least one server in that majority. So if a candidate advertises the latest entry in its own log, and every voting server checks that that log contains all the entries that the voter knows to be committed and only approves if so, then we can guarantee that only candidates which have all committed logs can become leader.
 
@@ -74,6 +74,6 @@ In order to actually progress the state machine, Raft needs a steady leader. The
 
 ## Conclusion
 
-There's a fair bit more in this paper (cluster membership changes, log compaction, implementation and evaluation) but I've spent my allotted time so I'm just going to jump forward to the related work and conclusion. Obviously Paxos is related, the main difference between it and Raft is that Raft puts leadership election centre-stage. There is also ZAB (ZooKeeper) and Viewstamped Replication, which like Raft have strong leaders but unlike Raft do not have a strict "leader to follower" flow of log entries.
+There's a fair bit more in this paper (cluster membership changes, log compaction, implementation and evaluation) but I've spent my allotted hour on this so I'm just going to jump forward to the related work and conclusion. Obviously Paxos is related, the main difference between it and Raft is that Raft puts leadership election centre-stage. There is also ZAB (ZooKeeper) and Viewstamped Replication, which like Raft have strong leaders but unlike Raft do not have a strict "leader to follower" flow of log entries.
 
 The paper concludes with discussing the value of understandability and I think I agree. Although I skimmed it in places, I think I got a pretty solid view of how the Raft algorithm works from this and am reasonably convinced of its correctness from this reasonably short paper.

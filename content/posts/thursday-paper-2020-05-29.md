@@ -5,7 +5,7 @@ date: 2020-05-29T08:34:17+01:00
 
 [Today's paper](https://arxiv.org/pdf/1706.01427.pdf) is a DeepMind paper from 2017 NeurIPS. It's about relational reasoning: how we can build systems that understand entities and the relationships between them, and make inferences based on those entities and relationships. A purely symbolic approach to AI is going to be happy approaching things from this perspective, but such systems do not deal with noise and uncertainty well. At the opposite end of the spectrum we have statistical learning techniques, which deal with noise well but struggle to learn complex relations between entities, especially if there is not a plethora of data about the relations to train on.
 
-This is all pretty abstract, so discussing an actual task will help ground things. One of the main thingsthis paper focusses on is performance on [CLEVR](https://cs.stanford.edu/people/jcjohns/clevr/). This is a dataset which presents an image and a set of questions about that image. To answer them, you will need to detect objects in that image, understand their properties, and perform a number of "reasoning" style tasks (attribute identification, counting, comparison, spatial relationships, and logical operations) based on those. This seems like a hard task. I suppose we'll see what the SOTA and this paper's score is. (Recall also that this paper is a few years old as well now, so these could have improved since then).
+This is all pretty abstract, so discussing an actual task will help ground things. One of the main things this paper focusses on is performance on [CLEVR](https://cs.stanford.edu/people/jcjohns/clevr/). This is a dataset which presents an image and a set of questions about that image. To answer them, you will need to detect objects in that image, understand their properties, and perform a number of "reasoning" style tasks (attribute identification, counting, comparison, spatial relationships, and logical operations) based on those. This seems like a hard task. I suppose we'll see what the SOTA and this paper's score is. (Recall also that this paper is a few years old as well now, so these could have improved since then).
 
 How are the authors going to do better at CLEVR? They're going to introduce a new neural network "module" called a Relation Network (RN) that is focussed on relational reasoning. They will combine this with CNNs and LSTMs so they can extract entities to feed in to their RN.
 
@@ -33,9 +33,9 @@ The authors used two versions of the CLEVR input. One was the standard pixel ver
 
 ## Models
 
-In the authors' parlance, RNs operate on objects. This is nice and flexible. The authors get good mileage out of passing in CNN and LSTM embeddings as the input objects to the RNs.
+In the authors' parlance, RNs operate on "objects", which is a pretty general notion. The authors get good mileage out of passing in CNN and LSTM embeddings as the input objects to the RNs.
 
-The objects output the CNN are pretty much what you would expect. They do not care which particular image feature constitutes an object, simply trusting that the CNN has discovered at least some useful objects and trusting that the RN will be able to infer what's important here.
+The objects output by the CNN are pretty much what you would expect. They do not care which particular image feature constitutes an object, simply trusting that the CNN has discovered at least some useful objects and trusting that the RN will be able to infer what's important here.
 
 They actually condition the function $g\_\theta$ on the question it's supposed to be processing (that is, on the LSTM embedding of the question). This is different to and less data-efficient than what they said in the introduction, but I guess it is reasonable.
 
