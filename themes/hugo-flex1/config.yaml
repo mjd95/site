@@ -1,0 +1,35 @@
+params:
+  color: '#5499c7'      # Any color in CSS syntax
+  width: 60rem          # Any length in CSS syntax
+  summaries: true       # Set to true to show summaries of posts on homepage
+  divider: '\2015\2015' # Set to false to remove divider below posts on homepage
+  schema: false         # Set to true to add Schema.org metadata
+  opengraph: false      # Set to true to add Open Graph metadata
+  twittercards: false   # Set to true to add Twitter Cards metadata
+  utterances:
+    repo:               # Set to Utterances repo URL to add Utterances comments
+    issueterm: pathname
+    theme: github-light
+  netlify:
+    honeypot: false     # Set to true to add honeypot field in contact form
+    recaptcha: false    # Set to true to add recaptcha challenge in contact form
+  # css:                # Uncomment to add custom CSS from a list of files
+  #   - css/foo.css
+  #   - bar.css
+  # js:                 # Uncomment to add custom JS from a list of files
+  #   - js/foo.js
+  #   - bar.js
+
+
+menu:
+  nav:
+  - name: Posts
+    url: posts/
+    weight: 1
+  - name: Research 
+    url: research/
+    weight: 2
+  - name: About
+    url: about/
+    weight: 3
+
