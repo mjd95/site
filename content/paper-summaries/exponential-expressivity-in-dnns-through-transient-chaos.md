@@ -3,8 +3,6 @@ title: "Exponential Expressivity in Deep Neural Networks Through Transient Chaos
 date: 2020-06-11T08:34:29+01:00
 ---
 
-## Introduction
-
 I was supposed to be reading [Deep Information Propagation, Schoenholz et. al.](https://arxiv.org/pdf/1611.01232.pdf) today, but I wasn't able to get through it without reading a precursor paper [Exponential Expressivity in Deep Neural Networks Through Transient Chaos, Poole et. al.](https://arxiv.org/pdf/1606.05340.pdf), so here's a summary of that one instead.
 
 The starting point for this paper is the observation that DFNNs (1) seem to be able to express complex functions with few parameters (a linearly shallower network expressing the same function requires exponentially wider layers) and (2) seem to be able to "disentangle" highly curved manifolds. However, neither of these are actually theorems, they are just what people believe based on examples.

@@ -26,10 +26,13 @@ menu:
   - name: Posts
     url: posts/
     weight: 1
+  - name: Paper Summaries 
+    url: paper-summaries/
+    weight: 2
   - name: Research 
     url: research/
-    weight: 2
+    weight: 3
   - name: About
     url: about/
-    weight: 3
+    weight: 4
 
