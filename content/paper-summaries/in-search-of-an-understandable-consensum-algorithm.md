@@ -1,9 +1,9 @@
 ---
-title: "Tuesday Paper: In Search of an Understandable Consensus Algorithm"
+title: "In Search of an Understandable Consensus Algorithm"
 date: 2020-05-26T08:53:00+01:00
 ---
 
-First up is the [Raft paper](https://raft.github.io/raft.pdf). Raft is a consensus algorithm, which is to say that you have a collection of servers that you would like to all compute the same state machine. This is obviously useful for fault tolerance in distributed systems.
+Today I'm looking at the [Raft paper](https://raft.github.io/raft.pdf). Raft is a consensus algorithm, which is to say that you have a collection of servers that you would like to all compute the same state machine. This is obviously useful for fault tolerance in distributed systems.
 
 Paxos is a well-known consensus algorithm. Everything I've read about Paxos talks about it being difficult to understand, and this paper is no different. In fact, inspired by the Paxos issue, _understandability_ is a first-class goal of their algorithm design.
 

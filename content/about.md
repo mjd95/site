@@ -2,7 +2,7 @@
 
 I'm a London-based software engineer at the UK games company [Improbable](https://improbable.io/). I spend most of my time working on our backend infrastructure. I've got a fair amount of experience in monitoring, particularly with [Prometheus](https://prometheus.io/) and [Thanos](https://github.com/improbable-eng/thanos). More recently, I've been working on automating scheduling and provisioning for on-prem machines hosting Kubernetes clusters.
  
-I generally enjoy learning about and playing around with technology. I'm trying to [blog](/posts) regularly about academic papers. Code-wise, I'm spending a lot of time with OpenGL right now, but I haven't decided if it's a game or an engine yet.
+I generally enjoy learning about and playing around with technology. I'm trying to [blog](/paper-summaries) regularly about academic papers. Code-wise, I'm spending a lot of time with OpenGL right now, but I haven't decided if it's a game or an engine yet.
     
 Before becoming a software engineer I worked as an academic mathematician. My research was in number theory, you can find some more details about what I worked on [here](/research).
 

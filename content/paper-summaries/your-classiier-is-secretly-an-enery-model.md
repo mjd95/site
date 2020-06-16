@@ -1,5 +1,5 @@
 ---
-title: "Thursday Paper: Your Classifier Is Secretly An Energy Model"
+title: "Your Classifier Is Secretly An Energy Model"
 date: 2020-05-21T09:08:17+01:00
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: "Thursday Paper: A Simple Neural Network Model for Relational Reasoning"
+title: "A Simple Neural Network Model for Relational Reasoning"
 date: 2020-05-29T08:34:17+01:00
 ---
 

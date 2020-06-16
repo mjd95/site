@@ -1,5 +1,5 @@
 ---
-title: "Thursday Paper: Can You Trust Your Model's Uncertainty?"
+title: "Can You Trust Your Model's Uncertainty?"
 date: 2020-06-04T08:55:24+01:00
 ---
 
