@@ -11,6 +11,10 @@ handlers:
   static_files: public/posts/index.html
   upload: public/posts/index.html
 
+- url: /paper-summaries/(|index.html)
+  static_files: public/paper-summaries/index.html
+  upload: public/paper-summaries/index.html
+
 - url: /research/(|index.html)
   static_files: public/research/index.html
   upload: public/research/index.html
@@ -22,6 +26,10 @@ handlers:
 - url: /posts/(.*)(/|/.html|/index.html)
   static_files: public/posts/\1/index.html
   upload: public/posts/(.*)
+
+- url: /paper-summaries/(.*)(/|/.html|/index.html)
+  static_files: public/paper-summaries/\1/index.html
+  upload: public/paper-summaries/(.*)
 
 - url: /css
   static_dir: public/css
