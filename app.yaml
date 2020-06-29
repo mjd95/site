@@ -4,22 +4,22 @@ threadsafe: true
 
 handlers:
 - url: /(|index.html)
-  static_files: public/index.html
-  upload: public/index.html
+  static_files: public/about/index.html
+  upload: public/about/index.html
 
-- url: /posts/(|index.html)
+- url: /posts(|/|index.html)
   static_files: public/posts/index.html
   upload: public/posts/index.html
 
-- url: /paper-summaries/(|index.html)
+- url: /paper-summaries(|/|index.html)
   static_files: public/paper-summaries/index.html
   upload: public/paper-summaries/index.html
 
-- url: /research/(|index.html)
+- url: /research(|/|index.html)
   static_files: public/research/index.html
   upload: public/research/index.html
 
-- url: /about/(|index.html)
+- url: /about(|/|index.html)
   static_files: public/about/index.html
   upload: public/about/index.html
 

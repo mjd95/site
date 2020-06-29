@@ -13,6 +13,3 @@ After my PhD, I continued to work on Siegel modular forms, this time on special 
 1. [Hecke eigenvalues of Klingen--Eisenstein series of squarefee level](https://arxiv.org/abs/1512.09069)
 1. [Explicit refinements of Boecherer's conjecture for Siegel modular forms of squarefree level](https://arxiv.org/abs/1512.07204)
 1. [Products of Eisenstein series and Fourier expansions of modular forms at cusps](https://arxiv.org/abs/1603.00774)
-1. [Computing Petersson norms of Siegel cusp forms of degree two](https://arxiv.org)
-1. [Local epsilon factors and Galois representations of newforms](https://arxiv.org)
-
