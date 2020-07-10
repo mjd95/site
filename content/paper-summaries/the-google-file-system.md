@@ -53,10 +53,42 @@ Standard `writes` work fine for serial access (the paper calls this _defined_ - 
 
 For `record appends`, both serially and concurrently, everything ends up "_defined_ interspersed with _inconistent_". Basically this is as above, all the writes end up in the file as a contiguous chunks of data, but there's going to be some mess around it. This is the typical use-case, and clients just need to be resilient to this potential mess. There's library code available to applications in Google to work around these issues.
 
-## Leases and Mutation Order
+## System Details
+
+### Leases and Mutation Order
 
 Given that the data is replicated and the master is not involved, how can we actually give _any_ guarantees over consistency of writes? For this, the master grants a chunk lease to one of the replicas (the _primary_). The primary is responsible for picking a serial order for applying mutations to the chunk.
 
 From the perspective of a client who wants to write some data, the flow is as follows. First they ask the master about the location of the chunks, this includes which replica is the primary. The client then pushes its data to all its replicas, who will store it in a buffer. Once acked by each replica, the client sends a write request to the primary. The primary might be dealing with multiple write requests here, but it decides on an order for them, applies the changes to its own copy of the chunk, then pushes the ordering to all other replicas. Once these are done and acked back to the primary, the primary informs the client of the happy outcome.
 
 The "mingled fragments from multiple mutations" happens for example when the write payloads from the clients are large, as the client library will break these up in to multiple smaller write payloads. With many writers, the payloads can be intermingled. (This feels avoidable, but I guess there's an undiscussed tradeoff in enforcing per-client continuity when the primary orders the payloads.)
+
+### Data Flow
+
+This part is pretty simple. Data is pushed linearly as possible: If a chunkserver has some data that it should forward, it forwards it to its nearest neighbour who also needs that data, and so on. There is no fanning out, which seems sensible in a situation where you're expecting large payloads. They mention typically having 100Mbps network links in the data centre, which shows this paper's age.
+
+### Record Appends
+
+We briefly discussed this operation, which semantically guarantees that your data will end up appended to the file as a contiguous chunk. This is a typically use case, for example with multiple workers using the file as a producer-consumer queue. It's similar to an ordinary write: the client pushes its data to all the replicas, then asks the primary to allow the write. Since it's a record append, though, the primary first checks if it would overflow the current chunk. If it would, it pads the current chunk and asks the client to try again. (Record appends are limited to 25% of the chunk size to mitigate the obvious problem with this.)
+
+The operation is reported as successful iff the data is written as an atomic unit at the same offset in all replicas of some chunk. In reality, the record append could fail on some replica, in which case the client would have to retry.
+
+### Snapshots
+
+This is just a copy-on-write approach to copying a file. When the master receives the snapshot request for a file, it invalidates all the lease for all chunks in that file. In future, when it receives a modification request, it will ask all the chunkservers to replicate the chunks locally. (There are a few failure modes here that they don't discuss, but I don't think there's anything complicated going on.)
+
+## More Master Responsibilities, High Avalability, and Fault Tolerance
+
+There's a lot more details about the master, replication, and fault tolerance over the next few sections. I'll just pick a few highlights:
+
+* Data should be replicated across racks. The pros: Can survive rack failure, can utilize bandwith from multiple racks simultaneously. The accepted con is that the data replication across racks is slower than replication within racks.
+* The master makes the decision of where the chunks are replicated, taking in to account things like sharing load, spreading across racks, etc. It does this when chunks have to be created for whatever reason, but it also does this when machines die or things need to be rebalanced.
+* Deletions are soft initially (rename the file to mark it as deleted) then hard after a few days. The master is solely responsible for whatever chunks should actually exist. It talks to the chunkservers and over time they will work out if that chunkserver has any chunks that are no longer on the master; the chunkserver can freely delete such chunks.
+* For each chunk, the master maintains a chunk version number. Whenever the master grants a new lease on a chunk, it bumps the version number and informs all the replicas. If the master hears a chunkserver talking about a stale chunk version, it considers it deleted. If the master hears a chunkserver talking about a future chunk version, it trusts the chunkserver and updates its own record. (I'm a bit uncomfortable with this one, but I think this can only happen during master failover, so perhaps the previous master has ensured that there are enough replicas of the data around to avoid data loss.)
+* The master is replicated for reliability: A mutation to the master's log is only successful when it has been written to disk on all master-replicas. Restarting the master is just replaying the log
+* There are also "shadow-masters" that are read-only. They might slightly lag behind the master, but that's only in the metadata, which isn't updating very quickly. Having shadow masters spreads the read load.
+* Chunkservers maintain checksums of their own data, stored in memory, so they can know if their disk has corrupted the data. A mismatch invalidates the chunk replica on that chunkserver, and means the master must reassign that replica. The checksumming method is optimized for appends.
+
+## Wrapping Up
+
+This is a long paper, covering a huge amount of topics. I skipped over a few. The "Experiences" section is pretty interesting. They talk about the problem of working with disks that claim to support various IDE protocol versions but in fact quitely mishandle some edge cases, leaving the kernel and the driver in an inconsistent state. This sounds like a bit of a nigthmare, and is why the introduced checksums. They also mention a few pure kernel issues, but are also grateful that they can read the Linux source code and upstream improvements.
