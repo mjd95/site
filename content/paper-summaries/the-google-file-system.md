@@ -77,7 +77,7 @@ The operation is reported as successful iff the data is written as an atomic uni
 
 This is just a copy-on-write approach to copying a file. When the master receives the snapshot request for a file, it invalidates all the lease for all chunks in that file. In future, when it receives a modification request, it will ask all the chunkservers to replicate the chunks locally. (There are a few failure modes here that they don't discuss, but I don't think there's anything complicated going on.)
 
-## More Master Responsibilities, High Avalability, and Fault Tolerance
+## More Master Responsibilities, High Avalability, and Fault Tolerance
 
 There's a lot more details about the master, replication, and fault tolerance over the next few sections. I'll just pick a few highlights:
 
@@ -91,4 +91,6 @@ There's a lot more details about the master, replication, and fault tolerance ov
 
 ## Wrapping Up
 
-This is a long paper, covering a huge amount of topics. I skipped over a few. The "Experiences" section is pretty interesting. They talk about the problem of working with disks that claim to support various IDE protocol versions but in fact quitely mishandle some edge cases, leaving the kernel and the driver in an inconsistent state. This sounds like a bit of a nigthmare, and is why the introduced checksums. They also mention a few pure kernel issues, but are also grateful that they can read the Linux source code and upstream improvements.
+This is a long paper, covering a huge amount of topics. I skipped over a few. The "Experiences" section towards the end is worth a shout-out though.
+
+They talk about the problem of working with disks that claim to support various IDE protocol versions but in fact quitely mishandle some edge cases, leaving the kernel and the driver in an inconsistent state. This sounds like a bit of a nigthmare, and is why the introduced checksums. They also mention a few pure kernel issues, but are also grateful that they can read the Linux source code and upstream improvements.
