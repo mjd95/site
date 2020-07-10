@@ -1,6 +1,7 @@
 ---
 title: "Cassandra - A Decentralized Structured Storage System"
 date: 2020-06-23T09:53:35+01:00
+draft: true
 ---
 
 Today it's the [Cassandra paper](https://www.cs.cornell.edu/Projects/ladis2009/papers/Lakshman-ladis2009.PDF). This is a pretty old paper again (2009). Cassandra isn't too fashionable these days, but it's undeniably been a pretty big player in the last decade and deserves some attention.
